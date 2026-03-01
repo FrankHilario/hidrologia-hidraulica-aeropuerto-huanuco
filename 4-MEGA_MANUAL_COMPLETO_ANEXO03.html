@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MEGA MANUAL — Estudio Hidrología e Hidráulica · Anexo 03</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050710; --s1:#0b0e1a; --s2:#0f1626; --s3:#141c30;
+  --b1:#1a2540; --b2:#243356; --b3:#2e4070;
+  --t1:#f0f4ff; --t2:#a8b8d8; --t3:#607090; --t4:#3a4a65;
+  /* Software colors */
+  --senamhi:#0ea5e9; --qgis:#4ade80; --hidroesta:#a78bfa;
+  --hechms:#f472b6; --hecras:#fb923c; --icm:#f87171;
+  --civil3d:#60a5fa; --autocad:#38bdf8; --excel:#34d399;
+  --word:#818cf8; --global:#fbbf24;
+  /* Phase palette */
+  --p0:#0ea5e9; --p1:#22d3ee; --p2:#a78bfa; --p3:#4ade80;
+  --p4:#f472b6; --p5:#f87171; --p6:#fb7185; --p7:#c084fc;
+  --p8:#67e8f9; --p9:#6ee7b7; --p10:#fcd34d; --p11:#93c5fd;
+  --p12:#f0abfc; --p13:#fde68a; --p14:#86efac;
+  --ok:#22c55e; --next:#f59e0b; --pend:#475569;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:'Outfit',sans-serif;font-size:13.5px;overflow-x:hidden}
+
+/* ══ BG GRID ══ */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(14,165,233,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(14,165,233,.025) 1px,transparent 1px);
+  background-size:36px 36px;pointer-events:none;z-index:0}
+
+/* ══ PROGRESS BAR ══ */
+#pgbar{position:fixed;top:0;left:0;height:3px;z-index:999;
+  background:linear-gradient(90deg,var(--p0),var(--p2),var(--p4),var(--p5),var(--p9),var(--p13));
+  transition:width .12s linear}
+
+/* ══ MASTER HEADER ══ */
+.mhead{position:relative;z-index:10;padding:44px 28px 32px;text-align:center;
+  background:linear-gradient(180deg,rgba(14,165,233,.07) 0%,transparent 100%);
+  border-bottom:1px solid var(--b2)}
+.mhead .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.3);
+  border-radius:24px;padding:4px 14px;font-size:.68rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--senamhi);margin-bottom:16px}
+.mhead h1{font-family:'Clash Display',sans-serif;font-size:clamp(1.5rem,4vw,2.6rem);
+  font-weight:700;letter-spacing:-.02em;color:#fff;line-height:1.1}
+.mhead h1 span{background:linear-gradient(135deg,var(--p0),var(--p2),var(--p4));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mhead p{margin-top:8px;color:var(--t3);font-size:.82rem;letter-spacing:.03em}
+.hstats{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;margin-top:24px}
+.hs{text-align:center}.hs .v{font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;color:#fff}
+.hs .l{font-size:.65rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
+
+/* ══ STICKY NAV TABS ══ */
+.tab-nav{position:sticky;top:0;z-index:50;background:rgba(5,7,16,.96);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--b1);
+  display:flex;overflow-x:auto;gap:0;padding:0 16px;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:12px 18px;font-family:'Outfit',sans-serif;
+  font-size:.76rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  background:transparent;border:none;color:var(--t3);cursor:pointer;
+  border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--t1)}
+.tab-btn.active{color:#fff;border-bottom-color:var(--p0)}
+
+/* ══ TAB PANELS ══ */
+.tab-panel{display:none;position:relative;z-index:5;max-width:1440px;margin:0 auto;padding:24px 20px 80px}
+.tab-panel.active{display:block}
+
+/* ══ SECTION HEADERS ══ */
+.sec{margin-bottom:8px;opacity:0;transform:translateY(16px);
+  transition:opacity .4s,transform .4s}
+.sec.vis{opacity:1;transform:translateY(0)}
+.sech{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:0;
+  border-radius:10px;cursor:pointer;overflow:hidden;border:1px solid var(--b1);
+  transition:border-color .2s}
+.sech:hover{border-color:var(--b2)}
+.sn{display:flex;align-items:center;justify-content:center;
+  font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;
+  padding:14px 0;min-height:64px}
+.sm{padding:14px 18px;flex:1}
+.st{font-family:'Clash Display',sans-serif;font-size:.95rem;font-weight:600;margin-bottom:3px}
+.sd{font-size:.73rem;color:var(--t3);line-height:1.4}
+.stags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.stag{padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.sarr{padding:0 16px;font-size:1rem;color:var(--t4);transition:transform .3s}
+.sech.open .sarr{transform:rotate(90deg)}
+
+/* ══ PHASE BODY ══ */
+.pb{overflow:hidden;max-height:0;transition:max-height .45s ease}
+.pb.open{max-height:99999px}
+.pbi{padding:12px 8px 12px 80px;border-left:1px dashed var(--b2);margin-left:32px}
+
+/* ══ SUBSECTION ══ */
+.ssec{margin-bottom:20px}
+.ssech{display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  padding-bottom:6px;border-bottom:1px solid var(--b1)}
+.ssect{font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em}
+.ssecd{font-size:.72rem;color:var(--t3);margin-left:auto}
+
+/* ══ TASK GRID ══ */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.tgrid.col2{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
+.tgrid.col1{grid-template-columns:1fr}
+
+/* ══ TASK CARD ══ */
+.tc{background:var(--s1);border:1px solid var(--b1);border-radius:8px;
+  padding:12px;transition:border-color .2s,transform .15s,box-shadow .2s;
+  position:relative;overflow:hidden}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:8px 8px 0 0}
+.tc:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.5);border-color:var(--b2)}
+.tch{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.tci{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;
+  justify-content:center;font-size:.9rem;flex-shrink:0}
+.tcn{font-family:'Clash Display',sans-serif;font-size:.82rem;font-weight:600;line-height:1.3;flex:1}
+.tcb{font-size:.72rem;color:var(--t2);line-height:1.5}
+.tcf{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.ttag{padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.sdot{margin-left:auto;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ok{background:var(--ok);box-shadow:0 0 5px rgba(34,197,94,.5)}
+.nx{background:var(--next);box-shadow:0 0 5px rgba(245,158,11,.5)}
+.pe{background:var(--pend)}
+
+/* ══ STEP LIST (click-by-click) ══ */
+.steps{list-style:none;display:flex;flex-direction:column;gap:5px}
+.step{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;
+  background:var(--s2);border:1px solid var(--b1);border-radius:7px;
+  transition:border-color .2s}
+.step:hover{border-color:var(--b2)}
+.step-num{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;
+  background:var(--b2);border-radius:4px;padding:2px 6px;flex-shrink:0;
+  min-width:24px;text-align:center;margin-top:1px}
+.step-body{flex:1;font-size:.75rem;color:var(--t2);line-height:1.5}
+.step-body strong{color:var(--t1);font-weight:600}
+.step-body .click{display:inline-flex;align-items:center;gap:3px;
+  background:rgba(96,165,250,.15);border:1px solid rgba(96,165,250,.3);
+  border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;color:#93c5fd;margin:0 2px}
+.step-body .menu{display:inline-flex;align-items:center;gap:3px;
+  background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);
+  border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;color:#c4b5fd;margin:0 2px}
+.step-body .val{display:inline;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.25);
+  border-radius:3px;padding:1px 5px;font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;color:#6ee7b7}
+.step-body .warn{display:inline;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);
+  border-radius:3px;padding:1px 5px;font-size:.62rem;color:#fcd34d}
+.step-arrow{font-size:.8rem;color:var(--t4);flex-shrink:0;margin-top:2px}
+
+/* ══ INFO / WARNING / TIP BOXES ══ */
+.box{border-radius:8px;padding:12px 14px;margin:10px 0;font-size:.76rem;line-height:1.6}
+.box strong{display:block;font-family:'Clash Display',sans-serif;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.box-obj{background:rgba(14,165,233,.08);border-left:3px solid var(--p0);color:var(--t2)}
+.box-obj strong{color:var(--p0)}
+.box-warn{background:rgba(251,191,36,.08);border-left:3px solid #fbbf24;color:var(--t2)}
+.box-warn strong{color:#fbbf24}
+.box-tip{background:rgba(52,211,153,.08);border-left:3px solid var(--excel);color:var(--t2)}
+.box-tip strong{color:var(--excel)}
+.box-crit{background:rgba(248,113,113,.08);border-left:3px solid var(--icm);color:var(--t2)}
+.box-crit strong{color:var(--icm)}
+.box-pre{background:rgba(167,139,250,.08);border-left:3px solid var(--p2);color:var(--t2)}
+.box-pre strong{color:var(--p2)}
+
+/* ══ FLOW CONNECTOR ══ */
+.fc{text-align:center;padding:8px 0;color:var(--b3);font-size:1.2rem;position:relative}
+.fc::before,.fc::after{content:'';position:absolute;top:50%;height:1px;background:var(--b1);width:calc(50% - 16px)}
+.fc::before{left:0}.fc::after{right:0}
+
+/* ══ SOFTWARE BADGE ══ */
+.sw-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:16px;border:1px solid;font-size:.68rem;font-weight:600;
+  letter-spacing:.04em;margin:2px}
+
+/* ══ SPECIALIST TABLE ══ */
+.spec-table{width:100%;border-collapse:collapse;font-size:.75rem;margin-top:8px}
+.spec-table th{background:var(--s2);padding:8px 12px;text-align:left;
+  font-family:'Clash Display',sans-serif;font-size:.7rem;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--t3);border:1px solid var(--b1)}
+.spec-table td{padding:8px 12px;border:1px solid var(--b1);vertical-align:top;line-height:1.5}
+.spec-table tr:hover td{background:var(--s2)}
+.spec-row-alt td{background:rgba(255,255,255,.02)}
+
+/* ══ OUTPUT PILLS ══ */
+.out-row{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 2px;
+  border-top:1px solid var(--b1);margin-top:12px}
+.op{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);
+  border:1px solid var(--b1);border-radius:6px;padding:4px 10px;
+  font-size:.68rem;color:var(--t3);transition:border-color .2s}
+.op:hover{border-color:var(--p0);color:var(--t1)}
+
+/* ══ MILESTONE ══ */
+.ms{display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-radius:10px;border-left:3px solid;margin:14px 0;font-size:.8rem}
+.ms-icon{font-size:1.4rem;flex-shrink:0}
+.ms strong{display:block;font-weight:700;margin-bottom:2px}
+.ms span{color:var(--t3);font-size:.73rem}
+
+/* ══ ANNEX MATRIX ══ */
+.annex-matrix{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:10px}
+.annex-card{background:var(--s2);border:1px solid var(--b1);border-radius:8px;
+  padding:12px;border-top:3px solid}
+.annex-card h4{font-family:'Clash Display',sans-serif;font-size:.8rem;font-weight:600;margin-bottom:6px}
+.annex-card ul{padding-left:14px;font-size:.7rem;color:var(--t3);line-height:1.7}
+
+/* ══ FINAL CHECKLIST ══ */
+.ck-list{display:flex;flex-direction:column;gap:4px}
+.ck-item{display:flex;align-items:center;gap:10px;padding:8px 12px;
+  background:var(--s1);border:1px solid var(--b1);border-radius:7px;font-size:.75rem}
+.ck-box{width:16px;height:16px;border-radius:4px;border:2px solid var(--b2);
+  flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s,border-color .2s}
+.ck-box.checked{background:var(--ok);border-color:var(--ok)}
+.ck-box.checked::after{content:'✓';font-size:.65rem;color:#fff;font-weight:700}
+.ck-num{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--t3);flex-shrink:0}
+.ck-text{flex:1}
+.ck-sw{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:1px 6px;
+  border-radius:3px;flex-shrink:0}
+
+/* ══ SIDEBAR NAV ══ */
+.sidenav{position:fixed;right:12px;top:50%;transform:translateY(-50%);
+  z-index:30;display:flex;flex-direction:column;gap:5px}
+.snd{width:8px;height:8px;border-radius:50%;background:var(--b2);
+  cursor:pointer;transition:transform .2s,background .2s;position:relative}
+.snd:hover,.snd.active{transform:scale(2)}
+.snd .snt{position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:var(--s2);border:1px solid var(--b2);border-radius:5px;
+  padding:2px 7px;font-size:.6rem;white-space:nowrap;opacity:0;
+  pointer-events:none;transition:opacity .2s;color:var(--t1)}
+.snd:hover .snt{opacity:1}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:768px){
+  .pbi{padding-left:16px;margin-left:8px}
+  .sidenav{display:none}
+  .sech{grid-template-columns:48px 1fr auto}
+}
+</style>
+</head>
+<body>
+<div id="pgbar"></div>
+
+<!-- SIDEBAR NAV -->
+<div class="sidenav" id="sidenav"></div>
+
+<!-- MASTER HEADER -->
+<div class="mhead">
+  <div class="badge">📘 MEGA MANUAL COMPLETO · ANEXO 03 · VERSIÓN DEFINITIVA 2026</div>
+  <h1>Estudio de <span>Hidrología e Hidráulica</span><br>con Fines de Drenaje</h1>
+  <p>Guía paso a paso · Click a click · Todos los software · Coordinación de especialistas · Estacionamientos e Infraestructura · Consorcio Aeroconstrucción · Huánuco</p>
+  <div class="hstats">
+    <div class="hs"><div class="v">16</div><div class="l">Fases</div></div>
+    <div class="hs"><div class="v">120+</div><div class="l">Tareas</div></div>
+    <div class="hs"><div class="v">14</div><div class="l">Softwares</div></div>
+    <div class="hs"><div class="v">500+</div><div class="l">Pasos</div></div>
+    <div class="hs"><div class="v">40+</div><div class="l">Entregables</div></div>
+    <div class="hs" style="color:var(--global)"><div class="v">100%</div><div class="l">Anexo 03</div></div>
+  </div>
+</div>
+
+<!-- TAB NAV -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('t0',this)">📋 Pre-Requisitos</button>
+  <button class="tab-btn" onclick="showTab('t1',this)">🗺️ Mapa Global</button>
+  <button class="tab-btn" onclick="showTab('t2',this)">📊 Manual Excel/HidroEsta</button>
+  <button class="tab-btn" onclick="showTab('t3',this)">🌍 Manual QGIS</button>
+  <button class="tab-btn" onclick="showTab('t4',this)">💧 Manual HEC-HMS</button>
+  <button class="tab-btn" onclick="showTab('t5',this)">🌊 Manual HEC-RAS</button>
+  <button class="tab-btn" onclick="showTab('t6',this)">🔴 Manual InfoWorks ICM</button>
+  <button class="tab-btn" onclick="showTab('t7',this)">📐 Manual Civil 3D</button>
+  <button class="tab-btn" onclick="showTab('t8',this)">📝 Manual Word/Informe</button>
+  <button class="tab-btn" onclick="showTab('t9',this)">✅ Checklist Final</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 0 — PRE-REQUISITOS Y COORDINACIÓN DE ESPECIALISTAS
+     ═══════════════════════════════════════════════════════════ -->
+<div class="tab-panel active" id="t0">
+
+<div class="box box-crit">
+  <strong>⛔ ANTES DE EMPEZAR EL ANEXO 03 — LEE ESTO PRIMERO</strong>
+  El Estudio de Hidrología e Hidráulica no es una isla. Necesita información que generan otros especialistas. Si empiezas sin estos datos, tendrás que repetir cálculos. Esta sección detalla EXACTAMENTE qué debes pedir, a quién, en qué formato y cuándo.
+</div>
+
+<!-- ═══ BLOQUE A: QUÉ NECESITAS DE OTROS ESPECIALISTAS ═══ -->
+<div class="sec vis" id="s-pre0">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.3)">
+    <div class="sn" style="background:rgba(248,113,113,.1);color:var(--icm)">A</div>
+    <div class="sm">
+      <div class="st" style="color:var(--icm)">DATOS QUE DEBES PEDIR A OTROS ESPECIALISTAS</div>
+      <div class="sd">Qué informes deben estar listos ANTES de que tú empieces el Anexo 03</div>
+      <div class="stags">
+        <span class="stag" style="background:rgba(248,113,113,.15);color:var(--icm)">Coordinación</span>
+        <span class="stag" style="background:rgba(248,113,113,.15);color:var(--icm)">Pre-requisito</span>
+      </div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open">
+    <div class="pbi">
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>Especialista / Área</th>
+            <th>¿Qué debes pedirle EXACTAMENTE?</th>
+            <th>Formato requerido</th>
+            <th>¿Para qué lo usas en Anexo 03?</th>
+            <th>Urgencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:#fbbf24">🏗️ Arquitecto</strong><br>Responsable del plano arquitectónico</td>
+            <td>
+              <strong>Plano arquitectónico completo:</strong><br>
+              1. Planta de todos los niveles del estacionamiento con cotas de piso terminado (NPT)<br>
+              2. Planta de techos con pendientes y direcciones de escorrentía<br>
+              3. Cortes y elevaciones con cotas de nivel<br>
+              4. Área total del predio (m²) y área impermeable<br>
+              5. Pendientes de rampas vehiculares<br>
+              6. Ubicación de áreas verdes o permeables<br>
+              7. Plano topográfico del terreno natural
+            </td>
+            <td>
+              <span class="ttag" style="background:rgba(96,165,250,.15);color:#93c5fd">DWG (Civil 3D 2021)</span><br>
+              <span class="ttag" style="background:rgba(96,165,250,.15);color:#93c5fd">PDF a escala</span><br>
+              Sistema coordenadas UTM 18S
+            </td>
+            <td>
+              - Delimitar subcuencas en ICM<br>
+              - Calcular área impermeable<br>
+              - Determinar pendientes superficiales<br>
+              - Cotas MDT para malla 2D<br>
+              - CN por tipo de superficie
+            </td>
+            <td><span class="sdot ok" style="display:inline-block;margin-right:4px"></span><strong style="color:var(--ok)">YA TIENES (DWG)</strong></td>
+          </tr>
+          <tr class="spec-row-alt">
+            <td><strong style="color:#60a5fa">🏛️ Estructurista</strong><br>Ing. de Estructuras</td>
+            <td>
+              <strong>Datos de cimentación:</strong><br>
+              1. Profundidad de cimentación de cada columna/muro<br>
+              2. Tipo de cimentación (zapatas, losas, pilotes)<br>
+              3. Cotas de fondo de cimentación (Z_cim)<br>
+              4. Especificaciones de muros de contención<br>
+              5. ¿Hay sótanos? → cotas de piso de sótano<br>
+              <br>
+              <strong>Para socavación:</strong><br>
+              6. Nivel de desplante de estructuras cercanas a cauces<br>
+              7. Carga admisible del suelo (qadm kg/cm²)
+            </td>
+            <td>
+              <span class="ttag" style="background:rgba(96,165,250,.15);color:#93c5fd">Planos estructurales DWG</span><br>
+              <span class="ttag" style="background:rgba(52,211,153,.15);color:var(--excel)">Tabla Excel de cotas</span>
+            </td>
+            <td>
+              - Definir profundidad mínima obras de drenaje<br>
+              - Análisis de socavación (Cap. Socavación)<br>
+              - Verificar interferencia red de drenaje vs. cimentación<br>
+              - Nivel de cimentación recomendado
+            </td>
+            <td><span class="sdot nx" style="display:inline-block;margin-right:4px"></span><strong style="color:var(--next)">SOLICITAR YA</strong></td>
+          </tr>
+          <tr>
+            <td><strong style="color:#4ade80">🔧 Especialista Sanitario</strong><br>Ing. Instalaciones Sanitarias</td>
+            <td>
+              <strong>¡OBLIGATORIO por Anexo 03!</strong><br>
+              1. Plano de red de desagüe pluvial propuesto<br>
+              2. Puntos de descarga pluvial al sistema público<br>
+              3. Caudal que acepta la red pública existente<br>
+              4. Diámetro de colector municipal en la calle<br>
+              5. Cota de la tapa y cota de fondo del colector público<br>
+              6. ¿Existe separación aguas residuales / aguas pluviales?<br>
+              7. Especificaciones técnicas de sumideros
+            </td>
+            <td>
+              <span class="ttag" style="background:rgba(96,165,250,.15);color:#93c5fd">Planos IS DWG</span><br>
+              <span class="ttag" style="background:rgba(52,211,153,.15);color:var(--excel)">Memoria descriptiva PDF</span>
+            </td>
+            <td>
+              - Coordinar diseño red drenaje pluvial<br>
+              - Definir punto de descarga del sistema<br>
+              - Condición de contorno aguas abajo en ICM<br>
+              - Verificar cota de empalme colector público
+            </td>
+            <td><span class="sdot nx" style="display:inline-block;margin-right:4px"></span><strong style="color:var(--next)">SOLICITAR YA</strong></td>
+          </tr>
+          <tr class="spec-row-alt">
+            <td><strong style="color:#f472b6">🌱 Especialista Geotécnico</strong><br>Ing. Mecánica de Suelos</td>
+            <td>
+              <strong>Estudio de Mecánica de Suelos (EMS):</strong><br>
+              1. Tipo de suelo (SUCS, AASHTO)<br>
+              2. Granulometría: d50, d84, d90 (para socavación)<br>
+              3. Capacidad portante (qadm)<br>
+              4. Nivel freático (si existe)<br>
+              5. Permeabilidad del suelo (k, cm/s) → para infiltración<br>
+              6. Perfil estratigráfico de calicatas<br>
+              7. Agresividad del suelo al concreto y al acero
+            </td>
+            <td>
+              <span class="ttag" style="background:rgba(244,114,182,.15);color:var(--p4)">Informe EMS PDF</span><br>
+              <span class="ttag" style="background:rgba(52,211,153,.15);color:var(--excel)">Tabla granulométrica Excel</span>
+            </td>
+            <td>
+              - Cálculo de socavación (d50 del lecho)<br>
+              - CN de infiltración en suelo natural<br>
+              - Permeabilidad para ICM (pérdidas)<br>
+              - Nivel freático vs. cota fondo tuberías
+            </td>
+            <td><span class="sdot nx" style="display:inline-block;margin-right:4px"></span><strong style="color:var(--next)">SOLICITAR YA</strong></td>
+          </tr>
+          <tr>
+            <td><strong style="color:#fb923c">📍 Topógrafo / Geodesta</strong></td>
+            <td>
+              <strong>Levantamiento topográfico del área:</strong><br>
+              1. Nube de puntos XYZ del predio y entorno (50m alrededor)<br>
+              2. Puntos de control BM georreferenciados (WGS84 UTM 18S)<br>
+              3. Curvas de nivel cada 0.25m (área proyecto) y 1.0m (alrededores)<br>
+              4. Perfil longitudinal y secciones transversales de cauces<br>
+              5. Coordenadas de colectores públicos existentes (tapa y fondo)<br>
+              6. Pendiente media del terreno natural (%)<br>
+              7. Modelo TIN exportado a Civil 3D / LandXML
+            </td>
+            <td>
+              <span class="ttag" style="background:rgba(251,146,60,.15);color:var(--hecras)">LAS (LiDAR) o XYZ CSV</span><br>
+              <span class="ttag" style="background:rgba(96,165,250,.15);color:#93c5fd">Civil 3D LandXML</span><br>
+              <span class="ttag" style="background:rgba(96,165,250,.15);color:#93c5fd">DWG con curvas de nivel</span>
+            </td>
+            <td>
+              - MDT para malla 2D en ICM<br>
+              - Perfil longitudinal red de drenaje<br>
+              - Pendientes de diseño<br>
+              - Cotas de nodos ICM (cámaras/buzones)
+            </td>
+            <td><span class="sdot nx" style="display:inline-block;margin-right:4px"></span><strong style="color:var(--next)">SOLICITAR YA</strong></td>
+          </tr>
+          <tr class="spec-row-alt">
+            <td><strong style="color:#a78bfa">🌍 Especialista Ambiental</strong></td>
+            <td>
+              <strong>Para caracterización de la cuenca:</strong><br>
+              1. Tipo de cobertura vegetal por zona<br>
+              2. Clasificación de uso de suelo (catastro o informe)<br>
+              3. Zonas de recarga hídrica identificadas<br>
+              4. Existencia de cuerpos de agua en el área de influencia
+            </td>
+            <td>
+              <span class="ttag" style="background:rgba(167,139,250,.15);color:var(--p2)">Shapefile SHP</span><br>
+              <span class="ttag" style="background:rgba(52,211,153,.15);color:var(--excel)">Tabla Excel o PDF</span>
+            </td>
+            <td>
+              - Número de curva CN por cobertura<br>
+              - Porcentaje área impermeable<br>
+              - Descripción zona de estudio (Cap. 2)
+            </td>
+            <td><span class="sdot pe" style="display:inline-block;margin-right:4px"></span><strong style="color:var(--pend)">Deseable (no crítico)</strong></td>
+          </tr>
+          <tr>
+            <td><strong style="color:#34d399">🏢 Jefe de Proyecto / PM</strong></td>
+            <td>
+              <strong>Documentos administrativos:</strong><br>
+              1. Expediente técnico base del proyecto<br>
+              2. Número de expediente: N° 202602100006<br>
+              3. Alcance exacto del área del proyecto (límites)<br>
+              4. Presupuesto aproximado de obras de drenaje (para calibrar nivel de diseño)<br>
+              5. Plazo de entrega del informe
+            </td>
+            <td>
+              <span class="ttag" style="background:rgba(52,211,153,.15);color:var(--excel)">PDF / Word</span>
+            </td>
+            <td>
+              - Portada del informe (datos del proyecto)<br>
+              - Sustento del período de retorno elegido<br>
+              - Alcance del estudio en la memoria
+            </td>
+            <td><span class="sdot ok" style="display:inline-block;margin-right:4px"></span><strong style="color:var(--ok)">YA TIENES (parcial)</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="box box-warn" style="margin-top:16px">
+        <strong>⚠️ ORDEN DE LLEGADA CRÍTICO</strong>
+        Para poder empezar a trabajar en ICM necesitas: (1) Plano DWG del arquitecto <strong>con cotas NPT</strong> ✓, (2) Levantamiento topográfico con MDT, (3) Datos SENAMHI ✓. Los demás puedes incorporarlos progresivamente. NO esperes a tener todo para empezar el análisis estadístico.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BLOQUE B: QUÉ ALIMENTA EL ANEXO 03 A OTROS ANEXOS ═══ -->
+<div class="sec vis" id="s-pre1">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.3)">
+    <div class="sn" style="background:rgba(167,139,250,.1);color:var(--p2)">B</div>
+    <div class="sm">
+      <div class="st" style="color:var(--p2)">DATOS QUE EL ANEXO 03 ENTREGA A OTROS ANEXOS DEL EXPEDIENTE</div>
+      <div class="sd">Tu trabajo alimenta directamente a otros especialistas. Coordina los outputs con el equipo.</div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open">
+    <div class="pbi">
+      <div class="annex-matrix">
+        <div class="annex-card" style="border-top-color:var(--civil3d)">
+          <h4 style="color:var(--civil3d)">📐 ANEXO ESTRUCTURAS</h4>
+          <ul>
+            <li>Profundidad socavación por estructura</li>
+            <li>Nivel mínimo de cimentación</li>
+            <li>Caudales para diseño de alcantarillas</li>
+            <li>Presión hidrostática en muros de contención</li>
+            <li>Nivel de agua máximo (empuje hidrostático)</li>
+          </ul>
+        </div>
+        <div class="annex-card" style="border-top-color:var(--excel)">
+          <h4 style="color:var(--excel)">🔧 ANEXO SANITARIAS (IS)</h4>
+          <ul>
+            <li>Caudales pluviales de diseño por ramal</li>
+            <li>Diámetros mínimos de colectores</li>
+            <li>Cota de descarga al colector público</li>
+            <li>Dimensiones de sumideros</li>
+            <li>Gradientes hidráulicos por tramo</li>
+          </ul>
+        </div>
+        <div class="annex-card" style="border-top-color:var(--hecras)">
+          <h4 style="color:var(--hecras)">📦 PRESUPUESTO Y METRADO</h4>
+          <ul>
+            <li>Longitudes y diámetros de tuberías</li>
+            <li>Número y tipo de sumideros</li>
+            <li>Cantidad de cámaras de inspección</li>
+            <li>Volumen de excavación para drenaje</li>
+            <li>Tipo de revestimiento de cunetas</li>
+          </ul>
+        </div>
+        <div class="annex-card" style="border-top-color:var(--hechms)">
+          <h4 style="color:var(--hechms)">🌱 ESTUDIO AMBIENTAL (EIA)</h4>
+          <ul>
+            <li>Caudales generados por el proyecto</li>
+            <li>Comparación: antes vs. después del proyecto</li>
+            <li>Mapas de zonas inundables</li>
+            <li>Impacto sobre el sistema de drenaje existente</li>
+          </ul>
+        </div>
+        <div class="annex-card" style="border-top-color:var(--qgis)">
+          <h4 style="color:var(--qgis)">🗺️ MEMORIA DESCRIPTIVA</h4>
+          <ul>
+            <li>Período de retorno por tipo de obra</li>
+            <li>Justificación del sistema de drenaje</li>
+            <li>Síntesis de precipitaciones de diseño</li>
+            <li>Descripción del modelo ICM</li>
+          </ul>
+        </div>
+        <div class="annex-card" style="border-top-color:var(--hidroesta)">
+          <h4 style="color:var(--hidroesta)">📋 ESPECIFICACIONES TÉCNICAS</h4>
+          <ul>
+            <li>Especificaciones de tuberías (material, clase)</li>
+            <li>Especificaciones de cunetas (concreto f'c)</li>
+            <li>Norma de prueba de tuberías</li>
+            <li>Manning de diseño por material</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BLOQUE C: RECURSOS Y PÁGINAS WEB NECESARIAS ═══ -->
+<div class="sec vis" id="s-pre2">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(14,165,233,.06);border-color:rgba(14,165,233,.3)">
+    <div class="sn" style="background:rgba(14,165,233,.1);color:var(--senamhi)">C</div>
+    <div class="sm">
+      <div class="st" style="color:var(--senamhi)">RECURSOS WEB, DATOS Y DESCARGAS NECESARIAS</div>
+      <div class="sd">URLs exactas, pasos de descarga y qué obtener de cada página</div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open">
+    <div class="pbi">
+      <div class="tgrid col2">
+        <div class="tc" style="--tc-c:var(--senamhi)">
+          <div class="tc::before" style="background:var(--senamhi)"></div>
+          <div class="tch">
+            <div class="tci" style="background:rgba(14,165,233,.15)">🌧️</div>
+            <div class="tcn" style="color:var(--senamhi)">SENAMHI — Datos Hidrometeorológicos</div>
+          </div>
+          <div class="tcb">
+            <strong>URL:</strong> <code style="color:#67e8f9;font-size:.7rem">https://www.senamhi.gob.pe</code><br>
+            <strong>URL Zonal 10:</strong> <code style="color:#67e8f9;font-size:.7rem">http://huanuco.senamhi.gob.pe</code><br><br>
+            <strong>Pasos:</strong><br>
+            1. Ir a → Datos Históricos → Estaciones Meteorológicas<br>
+            2. Buscar: "CP HUANUCO" o código estación<br>
+            3. Seleccionar parámetro: Precipitación Máxima 24h<br>
+            4. Período: 1990–2025<br>
+            5. Descargar como Excel o PDF<br><br>
+            <em style="color:var(--t3)">⚡ Ya tienes la ficha oficial D010/2026 ✓</em>
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(14,165,233,.15);color:var(--senamhi)">✓ OBTENIDO</span>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="tch">
+            <div class="tci" style="background:rgba(251,146,60,.15)">🗺️</div>
+            <div class="tcn" style="color:var(--hecras)">IGN — Cartas Nacionales y DEM</div>
+          </div>
+          <div class="tcb">
+            <strong>URL:</strong> <code style="color:#67e8f9;font-size:.7rem">https://www.ign.gob.pe/geoserver</code><br>
+            <strong>URL Portal:</strong> <code style="color:#67e8f9;font-size:.7rem">https://geoportal.ign.gob.pe</code><br><br>
+            <strong>Descargar:</strong><br>
+            1. Carta 21-k Huánuco (1:100,000)<br>
+            2. Formato: GeoTIFF o ECW<br>
+            3. También: <code style="color:#67e8f9;font-size:.7rem">https://earthexplorer.usgs.gov</code><br>
+            → SRTM 1 Arc-Second (30m) o ALOS PALSAR (12.5m)<br>
+            4. Buscar tile: N09W077 (zona Huánuco)
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(251,146,60,.15);color:var(--hecras)">PENDIENTE</span>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="tch">
+            <div class="tci" style="background:rgba(52,211,153,.15)">🌊</div>
+            <div class="tcn" style="color:var(--excel)">ANA — Red Hidrográfica Nacional</div>
+          </div>
+          <div class="tcb">
+            <strong>URL:</strong> <code style="color:#67e8f9;font-size:.7rem">https://geo.ana.gob.pe/geonetwork</code><br>
+            <strong>GeoPortal ANA:</strong> <code style="color:#67e8f9;font-size:.7rem">https://geoportal.ana.gob.pe</code><br><br>
+            <strong>Descargar:</strong><br>
+            1. Capa: Red Hidrográfica Nacional (shapefile)<br>
+            2. Cuenca: Río Huallaga<br>
+            3. Formato: Shapefile (.shp)<br>
+            4. Sistema coordenadas: WGS84 / UTM18S<br>
+            5. También descargar: Unidades Hidrográficas Pfafstetter
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(52,211,153,.15);color:var(--excel)">PENDIENTE</span>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="tch">
+            <div class="tci" style="background:rgba(167,139,250,.15)">📉</div>
+            <div class="tcn" style="color:var(--hidroesta)">HidroEsta 2 — Descarga Software</div>
+          </div>
+          <div class="tcb">
+            <strong>URL:</strong> <code style="color:#67e8f9;font-size:.7rem">https://www.delfinasoft.com/hidroesta</code><br>
+            <strong>Autor:</strong> Ing. Máximo Villón Béjar<br><br>
+            <strong>Pasos de instalación:</strong><br>
+            1. Ir a la URL → Sección "Descargar"<br>
+            2. Descargar: <code style="color:#67e8f9;font-size:.7rem">HidroEsta2_Setup.exe</code><br>
+            3. Instalar como administrador<br>
+            4. No requiere licencia (software libre académico)<br>
+            5. Compatible: Windows 10/11 x64
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(167,139,250,.15);color:var(--hidroesta)">INSTALAR</span>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="tch">
+            <div class="tci" style="background:rgba(244,114,182,.15)">🌊</div>
+            <div class="tcn" style="color:var(--hechms)">HEC-HMS — Descarga</div>
+          </div>
+          <div class="tcb">
+            <strong>URL:</strong> <code style="color:#67e8f9;font-size:.7rem">https://www.hec.usace.army.mil/software/hec-hms</code><br>
+            <strong>Versión recomendada:</strong> HEC-HMS 4.12 o superior<br><br>
+            <strong>Pasos:</strong><br>
+            1. Ir a URL → Downloads → HEC-HMS<br>
+            2. Descargar versión Windows<br>
+            3. Instalar (no requiere licencia — USACE free)<br>
+            4. También descargar HEC-GeoHMS plugin para ArcGIS
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(244,114,182,.15);color:var(--hechms)">DESCARGAR</span>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="tch">
+            <div class="tci" style="background:rgba(251,146,60,.15)">🌊</div>
+            <div class="tcn" style="color:var(--hecras)">HEC-RAS 6.x — Descarga</div>
+          </div>
+          <div class="tcb">
+            <strong>URL:</strong> <code style="color:#67e8f9;font-size:.7rem">https://www.hec.usace.army.mil/software/hec-ras</code><br>
+            <strong>Versión recomendada:</strong> HEC-RAS 6.5 o superior<br><br>
+            <strong>Pasos:</strong><br>
+            1. Ir a URL → Downloads → HEC-RAS<br>
+            2. Descargar: <code style="color:#67e8f9;font-size:.7rem">HEC-RAS_65_Setup.exe</code><br>
+            3. Instalar (gratuito — USACE)<br>
+            4. Para GIS: también descargar HEC-GeoRAS
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(251,146,60,.15);color:var(--hecras)">DESCARGAR</span>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="tch">
+            <div class="tci" style="background:rgba(74,222,128,.15)">🗺️</div>
+            <div class="tcn" style="color:var(--qgis)">QGIS 3.x — Descarga</div>
+          </div>
+          <div class="tcb">
+            <strong>URL:</strong> <code style="color:#67e8f9;font-size:.7rem">https://qgis.org/en/site/forusers/download.html</code><br>
+            <strong>Versión:</strong> QGIS 3.34 LTR (Long Term Release)<br><br>
+            <strong>Pasos:</strong><br>
+            1. Ir a URL → Windows → Standalone Installer<br>
+            2. Descargar <code style="color:#67e8f9;font-size:.7rem">QGIS-OSGeo4W-3.34.x-Setup.exe</code><br>
+            3. Instalar con OSGeo4W (incluye GRASS GIS)<br>
+            4. Plugins recomendados: SAGA, GDAL, QuickMapServices
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(74,222,124,.15);color:var(--qgis)">DESCARGAR GRATIS</span>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="tch">
+            <div class="tci" style="background:rgba(56,189,248,.15)">🛰️</div>
+            <div class="tcn" style="color:var(--autocad)">Google Earth Engine / USGS EarthExplorer</div>
+          </div>
+          <div class="tcb">
+            <strong>USGS:</strong> <code style="color:#67e8f9;font-size:.7rem">https://earthexplorer.usgs.gov</code><br>
+            <strong>GEE:</strong> <code style="color:#67e8f9;font-size:.7rem">https://earthengine.google.com</code><br>
+            <strong>OpenTopography DEM:</strong> <code style="color:#67e8f9;font-size:.7rem">https://portal.opentopography.org</code><br><br>
+            <strong>Para el DEM de Huánuco:</strong><br>
+            1. EarthExplorer → Search → Coordinates: 9.95°S, 76.25°W<br>
+            2. Dataset: SRTM 1 Arc-Second o ALOS PALSAR<br>
+            3. Descargar tile, importar a QGIS
+          </div>
+          <div class="tcf">
+            <span class="ttag" style="background:rgba(56,189,248,.15);color:var(--autocad)">WEB GRATUITA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end t0 -->
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 2 — MANUAL EXCEL / HIDROESTA 2
+     ═══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="t2">
+<div class="box box-obj"><strong>🎯 OBJETIVO</strong>Procesar los datos SENAMHI, ajustar distribuciones de probabilidad (mínimo 5), obtener precipitaciones de diseño para T=2,5,10,25,50,100,200,500 años y generar las curvas IDF para importar a InfoWorks ICM. También homogeneizar la serie y completar los datos S/D.</div>
+
+<!-- ─── MÓDULO 1: EXCEL — HOMOGENEIZACIÓN ─── -->
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3)">
+    <div class="sn" style="background:rgba(52,211,153,.1);color:var(--excel)">1</div>
+    <div class="sm">
+      <div class="st" style="color:var(--excel)">EXCEL — Homogeneización y Completación de Datos S/D</div>
+      <div class="sd">Ya tienes el Excel con la Serie Anual. Ahora completa los S/D y verifica consistencia.</div>
+      <div class="stags"><span class="stag" style="background:rgba(52,211,153,.15);color:var(--excel)">Excel ← YA TIENES</span></div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open">
+    <div class="pbi">
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--excel)">1.1 Completación de datos faltantes S/D</span></div>
+        <ul class="steps">
+          <li class="step">
+            <span class="step-num">1</span>
+            <div class="step-body">Abrir el archivo <strong>Precipitacion_CP_Huanuco_Analisis.xlsx</strong> → ir a hoja <span class="menu">1. Datos SENAMHI</span>. Los valores en rojo son los S/D que necesitan completarse.</div>
+          </li>
+          <li class="step">
+            <span class="step-num">2</span>
+            <div class="step-body">Para el <strong>Método de la Media Aritmética</strong>: En la celda S/D del año 1991 (Sep), hacer clic → escribir la fórmula: <span class="val">=AVERAGE(C5,C9,C15,C20,C25)</span> (promedio del mes SEP de años cercanos con datos completos). Este método es válido para completar S/D aislados.</div>
+          </li>
+          <li class="step">
+            <span class="step-num">3</span>
+            <div class="step-body">Para el <strong>Análisis de Doble Masa</strong> (verificar consistencia): Crear una hoja nueva llamada <span class="menu">Doble Masa</span>. En columna A: Año. En columna B: PP acumulada estación CP Huánuco. En columna C: PP acumulada estación de referencia (Tingo María o similar). <span class="click">Insertar → Gráfico → Dispersión XY</span>. Si la línea es recta → serie consistente.</div>
+          </li>
+          <li class="step">
+            <span class="step-num">4</span>
+            <div class="step-body"><span class="warn">IMPORTANTE:</span> El año 1993 tiene 7 datos S/D de 12 meses. Esto puede afectar el máximo anual. En la hoja 2 (Serie Anual), verificar que el valor de 1993 = <span class="val">18.0</span> mm (FEB, único mes completo con valor máximo). Documentar en la celda con comentario: Click derecho sobre celda → <span class="click">Insertar comentario</span> → "Año con datos incompletos, se usó FEB como máximo disponible".</div>
+          </li>
+          <li class="step">
+            <span class="step-num">5</span>
+            <div class="step-body">Crear columna adicional en hoja 2: <strong>"CALIDAD DEL DATO"</strong>. Usar fórmula: <span class="val">=IF(COUNTIF(C5:N5,"S/D")=0,"Completo",IF(COUNTIF(C5:N5,"S/D")<=3,"Aceptable","Revisar"))</span>. Los años "Revisar" deben documentarse en el informe.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--excel)">1.2 Serie Anual de Máximos — Tabla de Entrada para HidroEsta 2</span></div>
+        <ul class="steps">
+          <li class="step">
+            <span class="step-num">1</span>
+            <div class="step-body">En hoja 2 <span class="menu">2. Serie Anual Máximos</span>, la columna C (PP MÁX. 24h) ya está lista. <strong>Verificar:</strong> debe tener exactamente <span class="val">36 valores numéricos</span>, sin celdas vacías, sin texto.</div>
+          </li>
+          <li class="step">
+            <span class="step-num">2</span>
+            <div class="step-body">Seleccionar el rango <span class="val">C4:C39</span> → <span class="click">Ctrl+C</span> para copiar. Este bloque se pegará en HidroEsta 2 en el siguiente módulo.</div>
+          </li>
+          <li class="step">
+            <span class="step-num">3</span>
+            <div class="step-body">Crear hoja adicional: <span class="click">Click derecho en pestaña → Insertar hoja → Nombre: "Para HidroEsta"</span>. Pegar solo los valores (sin fórmulas): <span class="click">Ctrl+Shift+V → Pegar Especial → Solo Valores</span>. Esta hoja será el archivo de entrada limpio.</div>
+          </li>
+          <li class="step">
+            <span class="step-num">4</span>
+            <div class="step-body">Guardar como archivo separado de texto plano para HidroEsta: <span class="menu">Archivo → Guardar Como → Tipo: CSV (separado por comas) → Nombre: serie_PP_Huanuco.csv</span>. Abrir con Bloc de Notas y verificar que cada línea tenga un valor numérico.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MÓDULO 2: HIDROESTA 2 — ANÁLISIS COMPLETO ─── -->
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.3)">
+    <div class="sn" style="background:rgba(167,139,250,.1);color:var(--hidroesta)">2</div>
+    <div class="sm">
+      <div class="st" style="color:var(--hidroesta)">HIDROESTA 2 — Análisis de Frecuencias Completo (Click a Click)</div>
+      <div class="sd">Desde abrir el programa hasta obtener las precipitaciones de diseño y curvas IDF. Mínimo 5 distribuciones + pruebas de bondad.</div>
+      <div class="stags"><span class="stag" style="background:rgba(167,139,250,.15);color:var(--hidroesta)">HidroEsta 2</span><span class="stag" style="background:rgba(167,139,250,.15);color:var(--hidroesta)">SIGUIENTE PASO</span></div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open">
+    <div class="pbi">
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--hidroesta)">2.1 Abrir HidroEsta 2 e Ingresar Datos</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Abrir HidroEsta 2: <span class="click">Doble click en icono HidroEsta2.exe</span> en el escritorio. La pantalla principal muestra el menú de módulos.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Click en: <span class="menu">Módulo 1: Análisis Estadístico</span> → Seleccionar <span class="menu">Análisis de Frecuencias</span>.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">En la pantalla de datos: <strong>Nombre del proyecto:</strong> <span class="val">ESTUDIO HIDRO - AEROCONSTRUCCIÓN HUÁNUCO</span>. Estación: <span class="val">CP HUÁNUCO</span>. Parámetro: <span class="val">PP Máx 24h</span>. N° datos: <span class="val">36</span>.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Click en botón <span class="click">Ingresar Datos</span>. Se abre una tabla de 36 filas. Pegar los valores del CSV: <span class="click">Ctrl+V</span> en la primera celda de la tabla. Los valores deben aparecer del 1990 al 2025.</div></li>
+          <li class="step"><span class="step-num">5</span><div class="step-body">Click en <span class="click">Calcular Estadísticos</span>. HidroEsta mostrará: Media = ~14.5 mm (aprox), Desv. Est. = ~6.5 mm (aprox), Cs (asimetría), Ck (curtosis). <span class="warn">Anota estos valores en tu Excel para el informe.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--hidroesta)">2.2 Ajuste de las 6 Distribuciones de Probabilidad</span></div>
+        <div class="box box-warn"><strong>⚠️ REQUISITO MÍNIMO ANEXO 03</strong>Debes ajustar MÍNIMO 5 distribuciones. El informe debe mostrar todas las distribuciones probadas, los parámetros calculados y las pruebas de bondad para cada una. Aquí se describen 6 distribuciones.</div>
+
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span>
+            <div class="step-body"><strong>Distribución Normal:</strong> Click en <span class="menu">Distribuciones → Normal (2 parámetros)</span>. Click en <span class="click">Calcular</span>. HidroEsta calcula μ y σ por método de momentos. Click en <span class="click">Tabla de Resultados</span>. Anotar los valores para T=2, 5, 10, 25, 50, 100 años. Click en <span class="click">Guardar Resultados</span>.</div>
+          </li>
+          <li class="step"><span class="step-num">2</span>
+            <div class="step-body"><strong>Distribución Log-Normal 2 Parámetros:</strong> Click en <span class="menu">Distribuciones → Log-Normal (2 par.)</span>. Click en <span class="click">Calcular</span>. HidroEsta trabaja internamente con log(X). Ver tabla de resultados. <span class="warn">Esta distribución suele dar el mejor ajuste para Huánuco.</span> Guardar resultados.</div>
+          </li>
+          <li class="step"><span class="step-num">3</span>
+            <div class="step-body"><strong>Distribución Log-Normal 3 Parámetros:</strong> Click en <span class="menu">Distribuciones → Log-Normal (3 par.)</span>. El parámetro adicional x₀ (origen) se estima automáticamente. Si aparece error → el x₀ estimado es negativo o el ajuste es pobre. Click en <span class="click">Calcular y Guardar</span>.</div>
+          </li>
+          <li class="step"><span class="step-num">4</span>
+            <div class="step-body"><strong>Distribución Gumbel (EV Tipo I):</strong> Click en <span class="menu">Distribuciones → Gumbel (Máximos)</span>. Método: Momentos. HidroEsta calcula: u (moda) = X̄ - 0.5772/α y α = σ√6/π. Click en <span class="click">Calcular y Guardar</span>. <span class="warn">Obligatoria por el Manual MTC.</span></div>
+          </li>
+          <li class="step"><span class="step-num">5</span>
+            <div class="step-body"><strong>Distribución Log-Pearson Tipo III:</strong> Click en <span class="menu">Distribuciones → Log-Pearson III</span>. Ingresa el Cs de los logaritmos (que HidroEsta ya calculó en paso 2.1). Seleccionar tabla de factores K: <span class="menu">Wilson-Hilferty</span>. Click en <span class="click">Calcular y Guardar</span>.</div>
+          </li>
+          <li class="step"><span class="step-num">6</span>
+            <div class="step-body"><strong>Distribución GEV (Generalizada de Valores Extremos):</strong> Click en <span class="menu">Distribuciones → GEV</span>. Método de estimación: <span class="menu">Máxima Verosimilitud (MLE)</span>. Los 3 parámetros (μ, σ, ξ) se estiman automáticamente. Click en <span class="click">Calcular y Guardar</span>. <span class="warn">Esta es la distribución más moderna y robusta.</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--hidroesta)">2.3 Pruebas de Bondad de Ajuste</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span>
+            <div class="step-body"><strong>Prueba Kolmogorov-Smirnov:</strong> Click en <span class="menu">Bondad de Ajuste → Kolmogorov-Smirnov</span>. HidroEsta calcula automáticamente Δmax para cada distribución ajustada. Δ crítico (α=5%, n=36) = <span class="val">0.2272</span>. La distribución PASA si Δmax &lt; 0.2272. Anotar resultado de cada distribución.</div>
+          </li>
+          <li class="step"><span class="step-num">2</span>
+            <div class="step-body"><strong>Prueba Chi-Cuadrado:</strong> Click en <span class="menu">Bondad de Ajuste → Chi Cuadrado</span>. Número de intervalos: <span class="val">6</span> (para n=36). HidroEsta calculará χ² observado. Para 2 parámetros: grados de libertad = 6-1-2 = 3 → χ²crítico = <span class="val">7.815</span>. Para 3 parámetros: gl = 2 → χ²crítico = <span class="val">5.991</span>.</div>
+          </li>
+          <li class="step"><span class="step-num">3</span>
+            <div class="step-body"><strong>Selección de la distribución ganadora:</strong> Click en <span class="menu">Resumen → Tabla Comparativa</span>. HidroEsta muestra un ranking. La distribución con menor Δmax K-S Y que pase Chi² = distribución de diseño. <span class="warn">Si dos distribuciones son similares, elegir la más conservadora (valores más altos).</span></div>
+          </li>
+          <li class="step"><span class="step-num">4</span>
+            <div class="step-body">Click en <span class="click">Imprimir / Exportar PDF</span> para cada distribución → guardar como: <span class="val">HidroEsta_Gumbel.pdf</span>, <span class="val">HidroEsta_GEV.pdf</span>, etc. Estos PDFs van como anexos del informe Word.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--hidroesta)">2.4 Precipitaciones de Diseño por Período de Retorno</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span>
+            <div class="step-body">Con la distribución ganadora seleccionada: Click en <span class="menu">Resultados → Tabla de Diseño</span>. HidroEsta muestra PP (mm) para: T = 2, 5, 10, 25, 50, 100, 200, 500 años. <span class="warn">Copiar esta tabla completa a tu Excel.</span></div>
+          </li>
+          <li class="step"><span class="step-num">2</span>
+            <div class="step-body">En Excel, crear hoja <span class="menu">PP_Diseño</span>. Pegar la tabla. Agregar columna: "PP corregida" multiplicando por factor de corrección por tipo de pluviógrafo si aplica (generalmente 1.0 para estaciones SENAMHI).</div>
+          </li>
+          <li class="step"><span class="step-num">3</span>
+            <div class="step-body">Selección del período de retorno por estructura (según Manual MTC 2011):<br>
+            - Sumideros/cunetas menores: <span class="val">T = 10 años</span><br>
+            - Colectores secundarios: <span class="val">T = 25 años</span><br>
+            - Colector principal y descarga: <span class="val">T = 50 años</span><br>
+            - Verificación/desbordamiento: <span class="val">T = 100 años</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--hidroesta)">2.5 Curvas IDF — Método Yance Tueros (en Excel)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span>
+            <div class="step-body">En Excel, crear hoja <span class="menu">Curvas_IDF</span>. En columna A: Duraciones (min) = 5, 10, 15, 20, 30, 60, 120, 180, 360, 720, 1440. En fila 1: Períodos de retorno T = 2, 5, 10, 25, 50, 100 años.</div>
+          </li>
+          <li class="step"><span class="step-num">2</span>
+            <div class="step-body"><strong>Fórmula de Yance Tueros:</strong> Para la celda B2 escribir: <span class="val">=PP_diseño_T * (D_min/1440)^(0.25)</span> donde PP_diseño_T es la precipitación de diseño en mm para ese T, y D_min es la duración en minutos. Esta es la fórmula simplificada para precipitaciones en Perú.</div>
+          </li>
+          <li class="step"><span class="step-num">3</span>
+            <div class="step-body">Calcular <strong>Intensidad I (mm/h)</strong>: <span class="val">I = PP_D_T / D_horas</span>. En celda adyacente: <span class="val">=PP_calculada/(A2/60)</span>. Completar toda la tabla para todas las combinaciones T-D.</div>
+          </li>
+          <li class="step"><span class="step-num">4</span>
+            <div class="step-body"><strong>Graficar curvas IDF:</strong> Seleccionar tabla de Intensidades → <span class="click">Insertar → Gráfico → Dispersión con líneas suavizadas</span>. Eje X: Duración (min), Eje Y: Intensidad (mm/h). Cada curva = un T de retorno. Título: "Curvas IDF — Estación CP Huánuco". <span class="warn">Este gráfico va en el Cap. 3 del informe.</span></div>
+          </li>
+          <li class="step"><span class="step-num">5</span>
+            <div class="step-body"><strong>Obtener ecuación IDF:</strong> Hacer regresión potencial para cada T: <span class="val">I = a × T^b / D^c</span>. En Excel: usar Solver o LINEST con datos en escala log-log. Calcular coeficientes a, b, c.</div>
+          </li>
+          <li class="step"><span class="step-num">6</span>
+            <div class="step-body"><strong>Exportar para ICM:</strong> Crear tabla con columnas: Tiempo(min) | Intensidad_T10(mm/h) | Intensidad_T25 | Intensidad_T50 | Intensidad_T100. Guardar como CSV: <span class="val">IDF_Huanuco_para_ICM.csv</span>. <span class="warn">Este archivo se importa directamente a InfoWorks ICM como Rainfall Event.</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--hidroesta)">2.6 Hietograma de Diseño (Bloques Alternos) — Para ICM</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span>
+            <div class="step-body">Crear hoja Excel: <span class="menu">Hietograma_Diseño</span>. Duración total: <span class="val">6 horas (360 min)</span>. Intervalo: <span class="val">5 minutos</span>. Total de intervalos: 72.</div>
+          </li>
+          <li class="step"><span class="step-num">2</span>
+            <div class="step-body">Columna A: Tiempo (0, 5, 10... 360 min). Columna B: PP acumulada en t min = <span class="val">I(t,T) × t/60</span> (usando la curva IDF). Columna C: PP incremental = PP(t) - PP(t-Δt).</div>
+          </li>
+          <li class="step"><span class="step-num">3</span>
+            <div class="step-body">Aplicar método de Bloques Alternos: Ordenar los bloques de mayor a menor, luego reordenarlos para que el bloque máximo quede en el centro del hietograma. Los bloques pares van a la izquierda, los impares a la derecha del pico.</div>
+          </li>
+          <li class="step"><span class="step-num">4</span>
+            <div class="step-body">Guardar hietograma como CSV: <span class="val">Hietograma_T10_Huanuco.csv</span>, <span class="val">Hietograma_T25_Huanuco.csv</span>, <span class="val">Hietograma_T50_Huanuco.csv</span>, <span class="val">Hietograma_T100_Huanuco.csv</span>. Formato: col1=Tiempo(min), col2=Intensidad(mm/h).</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="out-row">
+        <div class="op">📊 Tabla distribuciones (6) con parámetros</div>
+        <div class="op">✅ Pruebas K-S y Chi² tabuladas</div>
+        <div class="op">📈 Gráficas curvas IDF (Excel)</div>
+        <div class="op">💧 PP diseño T=2,5,10,25,50,100,200,500</div>
+        <div class="op">📁 4 archivos CSV hietogramas para ICM</div>
+        <div class="op">📁 IDF_Huanuco_para_ICM.csv</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- end t2 -->
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 6 — MANUAL INFOWORKS ICM (CLICK A CLICK)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="tab-panel" id="t6">
+<div class="box box-crit"><strong>🔴 NÚCLEO DEL ESTUDIO — InfoWorks ICM Ultimate 2026.3.0</strong>Este es el manual más importante. Aquí se realiza TODO el modelamiento hidráulico 1D, 2D, lluvia-escorrentía, simulación multi-escenario y generación de mapas de inundación. Seguir los pasos en ORDEN ESTRICTO.</div>
+
+<!-- ICM MÓDULO 1: PROYECTO -->
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.3)">
+    <div class="sn" style="background:rgba(248,113,113,.1);color:var(--icm)">ICM-1</div>
+    <div class="sm">
+      <div class="st" style="color:var(--icm)">CONFIGURACIÓN DEL PROYECTO — Nuevo Grupo de Trabajo</div>
+      <div class="sd">Desde abrir ICM hasta tener el proyecto configurado con coordenadas, fondo DWG y datos básicos</div>
+      <div class="stags"><span class="stag" style="background:rgba(248,113,113,.15);color:var(--icm)">InfoWorks ICM</span><span class="stag" style="background:rgba(248,113,113,.15);color:var(--icm)">PRIMER PASO</span></div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open">
+    <div class="pbi">
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--icm)">ICM-1.1 Crear Nuevo Grupo de Trabajo</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Abrir InfoWorks ICM 2026.3.0. Pantalla: aparece "<strong>Sin grupo abierto</strong>" en el panel izquierdo (Grupos). Click en menú <span class="menu">Archivo</span> → <span class="click">Nuevo Grupo</span>.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">En el diálogo "Nuevo Grupo": Nombre: <span class="val">AEROCONSTRUCCION_HUANUCO_DRENAJE</span>. Descripción: <span class="val">Estudio Hidrología e Hidráulica – Drenaje Estacionamiento – Anexo 03</span>. Click en <span class="click">Aceptar</span>. El grupo aparece en el panel izquierdo.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Click derecho sobre el grupo → <span class="menu">Propiedades del Grupo</span>. En pestaña "Coordenadas": Sistema de Proyección → <span class="click">Seleccionar</span> → buscar <span class="val">WGS 84 / UTM zone 18S</span> → EPSG:32718. Click <span class="click">Aceptar</span>.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Click derecho sobre el grupo → <span class="menu">Agregar Red</span> → Nombre: <span class="val">RED_DRENAJE_ESTACIONAMIENTO</span>. Tipo: <span class="val">Drenaje Urbano (Urban Drainage)</span>. Click <span class="click">Aceptar</span>. La red aparece bajo el grupo.</div></li>
+          <li class="step"><span class="step-num">5</span><div class="step-body">Doble click en la red para abrirla → aparece el mapa en blanco en la ventana central. La barra de herramientas superior se activa con todas las opciones de edición de red.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--icm)">ICM-1.2 Importar Plano DWG como Capa de Fondo</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Con la red abierta, ir a menú <span class="menu">Herramientas</span> → <span class="menu">Capas de Fondo</span> → <span class="click">Administrar Capas de Fondo</span>.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Click en <span class="click">Agregar Capa</span>. Tipo de archivo: <span class="val">AutoCAD DXF/DWG</span>. Navegar hasta: <span class="val">02_PLANO.dwg</span>. Click <span class="click">Abrir</span>.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">En el diálogo de importación DWG: verificar que el sistema de coordenadas coincida con el proyecto (UTM 18S). Si el plano no tiene coordenadas reales, usar la opción <span class="menu">Ajuste de Coordenadas</span> y definir al menos 2 puntos de control con coordenadas UTM conocidas del sitio.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Seleccionar qué capas DWG mostrar: activar capas de <span class="val">Muros</span>, <span class="val">Cotas</span>, <span class="val">Ejes</span>, <span class="val">Plantas</span>. Desactivar capas de texto/anotaciones que puedan dificultar la visualización. Click <span class="click">Aceptar</span>.</div></li>
+          <li class="step"><span class="step-num">5</span><div class="step-body">El plano aparece en el fondo del mapa ICM. Ajustar transparencia al <span class="val">60%</span> con el deslizador de opacidad. Verificar que la escala y posición sean correctas comparando con Google Satellite: menú <span class="menu">Vista → Mapa Base → Google Satélite</span>.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--icm)">ICM-1.3 Ingresar Eventos de Lluvia (Hietogramas CSV)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">En panel izquierdo (Grupos): Click derecho sobre la red → <span class="menu">Agregar Objeto</span> → <span class="menu">Datos de Lluvia</span> → <span class="click">Evento de Lluvia (Rainfall Event)</span>.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Nombre del evento: <span class="val">Diseño_T10_Bloques_Alternos</span>. Tipo: <span class="val">Diseño (Design)</span>. Click en <span class="click">Importar datos</span> → seleccionar archivo <span class="val">Hietograma_T10_Huanuco.csv</span>. Verificar que las columnas tiempo(min) e intensidad(mm/h) se mapeen correctamente.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Repetir el paso anterior para crear los eventos: <span class="val">Diseño_T25</span>, <span class="val">Diseño_T50</span>, <span class="val">Diseño_T100</span>. Cada evento importa su CSV correspondiente.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Para verificar: Click en un evento → <span class="click">Ver Gráfico</span>. Debe aparecer el hietograma con el pico de lluvia en el centro (bloques alternos). El área bajo la curva en 6 horas debe aproximarse a la PP de diseño para ese T.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ICM MÓDULO 2: RED 1D -->
+<div class="sec vis">
+  <div class="sech" onclick="tog(this)" style="background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.3)">
+    <div class="sn" style="background:rgba(248,113,113,.1);color:var(--icm)">ICM-2</div>
+    <div class="sm">
+      <div class="st" style="color:var(--icm)">CONSTRUCCIÓN DE LA RED HIDRÁULICA 1D — Nodos, Conductos, Sumideros</div>
+      <div class="sd">Digitalizar toda la red de drenaje pluvial sobre el plano DWG. Paso a paso con cada herramienta.</div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb">
+    <div class="pbi">
+      <div class="box box-pre"><strong>🔷 PREREQUISITO</strong>Tener: (1) DWG cargado como fondo, (2) MDT del topógrafo, (3) Coordenadas XYZ de los buzones del plano IS. Sin cotas no se puede definir la red correctamente.</div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--icm)">ICM-2.1 Agregar Nodos (Cámaras de Inspección / Buzones)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">En la barra de herramientas de edición: Click en icono <span class="click">Agregar Nodo (Add Node)</span> (icono de círculo con +). El cursor cambia a cruz.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Click en el mapa sobre la ubicación del primer nodo (inicio de la red, punto más alto topográficamente). Aparece ventana de propiedades del nodo.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Completar datos del nodo:<br>
+            - ID: <span class="val">BZ-01</span> (nomenclatura: BZ=Buzón + número correlativo)<br>
+            - Tipo: <span class="val">Manhole (Cámara de Inspección)</span><br>
+            - Cota terreno (Ground Level): <span class="val">1917.50</span> m (tomar del MDT o plano topográfico)<br>
+            - Profundidad máxima: <span class="val">1.50</span> m (ajustar según plano IS)<br>
+            - Dimensión en planta: <span class="val">1.20 × 1.20</span> m<br>
+            Click <span class="click">Aceptar</span>.
+          </div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Continuar agregando todos los nodos siguiendo el recorrido de la red de drenaje sobre el DWG. Nomenclatura: BZ-01, BZ-02... para cámaras; SU-01, SU-02... para sumideros.</div></li>
+          <li class="step"><span class="step-num">5</span><div class="step-body"><span class="warn">TIP IMPORTANTE:</span> Para ingresar cotas rápidamente desde el MDT → Menu <span class="menu">Herramientas → Actualizar Cotas desde MDT</span>. Seleccionar todos los nodos → Click <span class="click">Actualizar</span>. ICM asigna automáticamente la cota del MDT a cada nodo.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--icm)">ICM-2.2 Agregar Conductos (Tuberías)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Click en herramienta <span class="click">Agregar Conducto (Add Pipe)</span>. Click sobre el nodo origen (aguas arriba) → Click sobre el nodo destino (aguas abajo). Aparece la ventana de propiedades del conducto.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Completar propiedades:<br>
+            - ID: <span class="val">TUB-01</span><br>
+            - Tipo: <span class="val">Circular</span><br>
+            - Diámetro (Design): <span class="val">0.40</span> m (diseño preliminar, se ajustará en iteración)<br>
+            - Manning n: <span class="val">0.013</span> (tubería PVC) ó <span class="val">0.014</span> (concreto)<br>
+            - Cota fondo inicio (Invert Level US): leer del plano IS o calcular: Cota_terreno_inicio - Profundidad_inicio<br>
+            - Cota fondo fin (Invert Level DS): asegurar pendiente mínima 1.0‰
+          </div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body"><span class="warn">VERIFICACIÓN CRÍTICA:</span> La pendiente de cada conducto debe ser: <strong>mínima = 0.1%</strong> (autolimpieza) y <strong>máxima = 15%</strong> para PVC. Verificar en la ventana: ICM calcula la pendiente automáticamente. Si aparece negativa → invertir el sentido del conducto.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Para conductos rectangulares (cunetas/canales): En tipo de sección → <span class="val">Rectangular</span>. Ancho: <span class="val">0.40</span> m, Alto: <span class="val">0.35</span> m (ajustar según diseño). Manning: <span class="val">0.014</span> (concreto f'c=175 kg/cm²).</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--icm)">ICM-2.3 Agregar Sumideros Pluviales (Gullies)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Click en herramienta <span class="click">Agregar Sumidero (Add Gulley)</span>. Click sobre la ubicación del sumidero en el mapa (sobre la cuneta o borde de calzada).</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Propiedades del sumidero:<br>
+            - Tipo: <span class="val">Gulley (Sumidero de rejilla)</span><br>
+            - Nodo de conexión: seleccionar el nodo 1D más cercano aguas abajo<br>
+            - Área de captación superficial: <span class="val">100</span> m² (o según plano IS)<br>
+            - Coeficiente de captación: <span class="val">0.8</span> (80% eficiencia)
+          </div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Para conectar al modelo 2D: En propiedades del sumidero → activar <span class="val">Enlace con malla 2D</span>. El sumidero captará el agua que acumule la malla 2D en esa ubicación.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--icm)">ICM-2.4 Subcuencas (Subcatchments) — Lluvia-Escorrentía</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Click en herramienta <span class="click">Agregar Subcuenca (Add Subcatchment)</span>. Dibujar el polígono de la subcuenca sobre el DWG haciendo clicks en los vértices. Doble click para cerrar el polígono.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Propiedades de la subcuenca:<br>
+            - Área: ICM calcula automáticamente del polígono dibujado<br>
+            - Área impermeable (%): <span class="val">85</span>% (estacionamiento asfaltado) ó <span class="val">40</span>% (zona con jardines)<br>
+            - Número de Curva CN: <span class="val">92</span> (superficie impermeable) ó <span class="val">72</span> (zona mixta)<br>
+            - Pendiente media (%): tomar del MDT o plano topográfico<br>
+            - Nodo de descarga: seleccionar el BZ más cercano aguas abajo<br>
+            - Modelo de pérdidas: <span class="val">SCS (Curve Number)</span><br>
+            - Modelo de escorrentía: <span class="val">SWMM Routing</span>
+          </div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Para el estacionamiento: dividir en subcuencas por áreas con diferente impermeabilidad. Ejemplo: SC-01 (piso asfaltado, CN=92), SC-02 (rampa, CN=90), SC-03 (jardines, CN=65), SC-04 (área techada, CN=98).</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Asignar lluvia a cada subcuenca: En propiedades → campo "Evento de lluvia" → seleccionar <span class="val">Diseño_T25</span> (o el T de diseño correspondiente). El mismo evento de lluvia aplica a todas las subcuencas.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ICM MÓDULO 3: MODELO 2D -->
+<div class="sec vis">
+  <div class="sech" onclick="tog(this)" style="background:rgba(139,92,246,.06);border-color:rgba(139,92,246,.3)">
+    <div class="sn" style="background:rgba(139,92,246,.1);color:var(--p7)">ICM-3</div>
+    <div class="sm">
+      <div class="st" style="color:var(--p7)">MODELO 2D DE SUPERFICIE — MDT, Malla, Rugosidades y Acople 1D-2D</div>
+      <div class="sd">El diferenciador del informe. Click a click para generar el modelo 2D y acoplarlo con la red 1D.</div>
+      <div class="stags"><span class="stag" style="background:rgba(139,92,246,.15);color:var(--p7)">ICM 2D</span><span class="stag" style="background:rgba(139,92,246,.15);color:var(--p7)">★ DIFERENCIADOR</span></div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb">
+    <div class="pbi">
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p7)">ICM-3.1 Importar MDT (Modelo Digital de Terreno)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">En panel izquierdo: Click derecho sobre la red → <span class="menu">Agregar Objeto</span> → <span class="menu">Datos 2D</span> → <span class="click">Superficie de Terreno (Ground Model)</span>.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">En propiedades de la superficie: Click en <span class="click">Importar</span>. Formatos aceptados: <span class="val">LandXML (.xml)</span> (de Civil 3D), <span class="val">ASCII Grid (.asc)</span> (de QGIS), <span class="val">XYZ (.txt)</span> (puntos del topógrafo). Seleccionar el archivo MDT del topógrafo.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Si el MDT es un ASCII Grid de QGIS: exportar desde QGIS como → <span class="menu">Raster → Guardar Como → Formato: Arc/Info ASCII Grid</span>. Resolución: 0.5m (área del proyecto). Abrir en ICM.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Verificar el MDT en ICM: Click en <span class="click">Ver Superficie</span> → aparece mapa de colores de elevación. Verificar cotas máximas y mínimas contra el plano topográfico. Si hay diferencias → revisar sistema de coordenadas.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p7)">ICM-3.2 Crear Dominio 2D y Generar Malla</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Click en herramienta <span class="click">Agregar Dominio 2D (Add 2D Zone)</span>. Dibujar el polígono del dominio 2D cubriendo: toda el área del estacionamiento + 20m de buffer alrededor. Doble click para cerrar.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">En propiedades del dominio 2D:<br>
+            - Nombre: <span class="val">ZONA_2D_ESTACIONAMIENTO</span><br>
+            - Modelo de terreno: seleccionar el MDT importado<br>
+            - Tamaño de elemento máximo: <span class="val">1.0 m</span> (área del estacionamiento)<br>
+            - Tamaño de elemento mínimo: <span class="val">0.25 m</span> (zonas de flujo concentrado)
+          </div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Click en <span class="click">Generar Malla (Generate Mesh)</span>. ICM genera la triangulación. Proceso demora 2-5 minutos. Al finalizar aparece el mensaje "Malla generada correctamente: XXXX elementos".</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Verificar calidad de la malla: <span class="menu">Herramientas 2D → Verificar Malla</span>. ICM muestra elementos con problemas (relación aspecto > 5:1 = problema). Si hay errores → usar herramienta <span class="click">Refinar Malla</span> en zonas problemáticas.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p7)">ICM-3.3 Asignar Rugosidades 2D (Manning)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Click derecho sobre el dominio 2D → <span class="menu">Agregar Polígono de Rugosidad (Add Roughness Polygon)</span>. Dibujar el polígono sobre el área de asfalto/concreto del estacionamiento.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Propiedades: Manning n = <span class="val">0.013</span> para asfalto. Repetir para: Áreas verdes n=<span class="val">0.035</span>, Veredas n=<span class="val">0.014</span>, Rampas n=<span class="val">0.013</span>.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Verificar asignación: <span class="menu">Herramientas 2D → Mostrar Rugosidades</span>. El mapa debe mostrar colores diferenciados por zona. Zonas sin polígono de rugosidad asumen el valor por defecto (n=0.035).</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p7)">ICM-3.4 Acople 1D-2D — Conexión Red Subterránea con Superficie</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">El acople 1D-2D en ICM es automático cuando los nodos 1D (buzones) están dentro del dominio 2D. ICM detecta la intersección y crea los enlaces automáticamente. Verificar: <span class="menu">Herramientas → Verificar Acople 1D-2D</span>. Todos los nodos 1D dentro del dominio 2D deben aparecer en verde.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Tipo de acople: para cada nodo 1D → verificar que el parámetro <span class="val">Flood Type</span> esté configurado como <span class="val">Loss/Gain (2D)</span>. Esto permite que el agua desborde del buzón hacia la superficie 2D y viceversa.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body"><strong>Muros y barreras 2D:</strong> Click en herramienta <span class="click">Agregar Muro 2D (Add 2D Wall)</span>. Trazar los muros perimetrales del estacionamiento que actúan como barreras al flujo superficial. Altura del muro: diferencia de cota entre interior y exterior + borde libre.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body"><strong>Condición de contorno aguas abajo:</strong> Click en <span class="click">Agregar Condición de Contorno (Add Boundary Condition)</span>. Ubicar en el punto de descarga de la red. Tipo: <span class="val">Level (Nivel fijo)</span> ó <span class="val">Free Outfall (Descarga libre)</span>. Cota de descarga: tomar del Especialista Sanitario (cota de colector público).</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ICM MÓDULO 4: SIMULACIÓN -->
+<div class="sec vis">
+  <div class="sech" onclick="tog(this)" style="background:rgba(6,182,212,.06);border-color:rgba(6,182,212,.3)">
+    <div class="sn" style="background:rgba(6,182,212,.1);color:var(--p8)">ICM-4</div>
+    <div class="sm">
+      <div class="st" style="color:var(--p8)">SIMULACIÓN MULTI-ESCENARIO — Configurar y Correr</div>
+      <div class="sd">Configurar parámetros de simulación, crear escenarios (sin/con proyecto) y correr para T=10, 25, 50, 100 años.</div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb">
+    <div class="pbi">
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p8)">ICM-4.1 Configurar Parámetros de Simulación</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Click derecho sobre la red → <span class="menu">Agregar Run</span>. Nombre: <span class="val">RUN_T25_CON_PROYECTO</span>. Tipo: <span class="val">Drenaje Urbano con 2D</span>.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">En pestaña <span class="menu">General</span>: Evento de lluvia → seleccionar <span class="val">Diseño_T25</span>. Duración de simulación: <span class="val">6 horas (21600 s)</span>. Paso de tiempo inicial: <span class="val">5 segundos</span> (para 2D). Guardar resultados cada: <span class="val">60 segundos</span>.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">En pestaña <span class="menu">1D</span>: Solver → <span class="val">Preissmann (implícito)</span>. Theta: <span class="val">0.7</span>. Tolerancia convergencia: <span class="val">0.001</span>.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">En pestaña <span class="menu">2D</span>: Solver → <span class="val">TVD (Total Variation Diminishing)</span>. CFL máximo: <span class="val">0.9</span>. Profundidad mínima: <span class="val">0.001 m</span>.</div></li>
+          <li class="step"><span class="step-num">5</span><div class="step-body">Click en <span class="click">Aceptar</span>. Luego: Click derecho sobre el Run → <span class="click">Correr (Run)</span>. Aparece barra de progreso. Tiempo estimado: 10-30 minutos según tamaño de malla.</div></li>
+          <li class="step"><span class="step-num">6</span><div class="step-body">Crear Runs adicionales: duplicar el Run → cambiar solo el evento de lluvia. Crear: RUN_T10, RUN_T25, RUN_T50, RUN_T100. También crear: RUN_T25_SIN_PROYECTO (con red 1D vacía para comparar).</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ICM MÓDULO 5: RESULTADOS -->
+<div class="sec vis">
+  <div class="sech" onclick="tog(this)" style="background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.3)">
+    <div class="sn" style="background:rgba(16,185,129,.1);color:var(--p9)">ICM-5</div>
+    <div class="sm">
+      <div class="st" style="color:var(--p9)">ANÁLISIS DE RESULTADOS — Mapas 2D, Perfiles, Hidrogramas, Exportación</div>
+      <div class="sd">Post-proceso completo para generar todas las figuras y tablas del informe.</div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb">
+    <div class="pbi">
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p9)">ICM-5.1 Mapas de Inundación 2D</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Al terminar el Run → Click derecho sobre RUN_T25_CON_PROYECTO → <span class="click">Ver Resultados (Open Results)</span>. Se abre la ventana de mapa con los resultados.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">En el panel de resultados: Variable a visualizar → <span class="val">Depth (Profundidad de agua)</span>. Escala de colores: Click en <span class="click">Editar Escala</span> → configurar: 0.01m=azul muy claro, 0.05m=azul, 0.10m=verde, 0.25m=amarillo, 0.50m=naranja, >1.0m=rojo.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Ir al tiempo de máxima inundación: usar el deslizador temporal hasta encontrar el tiempo donde el volumen inundado es máximo (generalmente 2-3 horas desde el inicio).</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Exportar mapa: <span class="menu">Resultados → Exportar → Ráster de Profundidades (Max Depth)</span>. Formato: <span class="val">GeoTIFF</span>. Nombre: <span class="val">Mapa_Inundacion_T25_MaxDepth.tif</span>. Este archivo se importa a QGIS para presentación final.</div></li>
+          <li class="step"><span class="step-num">5</span><div class="step-body">También exportar: <span class="val">Velocidad máxima (Max Velocity)</span> y <span class="val">Tiempo de primera inundación (First Inundation Time)</span> como GeoTIFF.</div></li>
+          <li class="step"><span class="step-num">6</span><div class="step-body">Para captura de pantalla del informe: <span class="menu">Archivo → Exportar Vista → PNG 300 DPI</span>. Incluir barra de escala y norte. Nombre: <span class="val">Fig_Mapa_Inundacion_T25.png</span>.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p9)">ICM-5.2 Perfiles Hidráulicos Longitudinales</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Con resultados abiertos: Click en herramienta <span class="click">Long Section (Perfil Longitudinal)</span>. Click sobre el primer conducto del colector principal → shift+click sobre el último conducto de la misma cadena. ICM traza el perfil longitudinal.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">El perfil muestra: línea roja = nivel de agua, línea gris = corona del tubo, línea negra = solera del tubo. Verificar que la línea roja NO supere la corona del tubo para el T de diseño.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Exportar perfil: Click en <span class="click">Exportar → PDF o PNG 300 DPI</span>. Un perfil por cada colector principal. Nombre: <span class="val">Perfil_Colector_Principal_T25.png</span>.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p9)">ICM-5.3 Exportar Hidrogramas y Tabla de Resultados a Excel</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Click en herramienta <span class="click">Time Series (Serie de Tiempo)</span>. Click sobre el nodo de descarga (BZ-último). Aparece gráfico del hidrograma de caudal.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Click en <span class="click">Exportar Datos</span>. Formato: <span class="val">CSV</span>. Columnas: Tiempo(min), Caudal(m³/s), Nivel(msnm). Nombre: <span class="val">Hidrograma_Descarga_T25.csv</span>. Abrir en Excel y graficar.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Tabla resumen de caudales máximos: <span class="menu">Resultados → Tabla de Resumen</span> → exportar como CSV. Esta tabla muestra Q_pico, V_máx, nivel máximo, tiempo al pico para cada conducto y nodo.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--p9)">ICM-5.4 Generar Animación de Inundación 2D (Video MP4)</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body"><span class="menu">Resultados → Crear Animación (Create Animation)</span>. Variable: <span class="val">Depth</span>. Intervalo de frames: <span class="val">5 minutos</span>. FPS: <span class="val">10</span>.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Configurar: incluir barra de tiempo, escala de colores, escala gráfica y flecha de norte. Fondo: imagen satelital si está disponible. Formato salida: <span class="val">MP4 (H.264)</span>. Nombre: <span class="val">Animacion_Inundacion_T25_ICM.mp4</span>.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">Click en <span class="click">Renderizar</span>. El proceso demora 5-15 minutos. El video resultante se entrega junto al informe como material de presentación ante los revisores. <span class="warn">Este video es el elemento más impactante del entregable.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="out-row">
+        <div class="op">🗺️ GeoTIFF mapas inundación (T=10,25,50,100)</div>
+        <div class="op">📈 PNG perfiles hidráulicos longitudinales</div>
+        <div class="op">📊 CSV hidrogramas por nodo → Excel</div>
+        <div class="op">🎬 Video MP4 animación inundación</div>
+        <div class="op">📋 Tabla resumen Q_pico y tirantes</div>
+        <div class="op">📁 Modelo .icm calibrado</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- end t6 -->
+<!-- ═══ TAB 1 MAPA GLOBAL ═══ -->
+<div class="tab-panel" id="t1">
+<div class="box box-obj"><strong>🗺️ MAPA GLOBAL — PROCESO COMPLETO</strong>Vista de pájaro de todo el proceso desde los datos brutos hasta el entregable final. Los conectores muestran dependencias entre fases.</div>
+
+<div class="tgrid col1">
+<!-- PRE-REQUISITOS -->
+<div class="ms" style="background:rgba(248,113,113,.08);border-color:var(--icm)">
+  <span class="ms-icon">⛔</span>
+  <div><strong style="color:var(--icm)">FASE PREVIA — Coordinación de Especialistas (ANTES DE EMPEZAR)</strong>
+  <span>Solicitar: DWG arquitecto con cotas ✓ · Topografía con MDT → Topógrafo · Datos EMS (granulometría d50) → Geotécnico · Planos IS con colector público → Sanitario · Cotas cimentación → Estructurista</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(14,165,233,.08);border-color:var(--senamhi)">
+  <span class="ms-icon">🌧️</span>
+  <div><strong style="color:var(--senamhi)">FASE 0 — Datos SENAMHI ✓ COMPLETADO</strong>
+  <span>Serie PP Máx 24h · 1990–2025 · 36 años · Ficha oficial D010/2026 · Excel con serie anual lista</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(167,139,250,.08);border-color:var(--hidroesta)">
+  <span class="ms-icon">📉</span>
+  <div><strong style="color:var(--hidroesta)">FASE 1 — HidroEsta 2 — Análisis Estadístico ← SIGUIENTE PASO</strong>
+  <span>6 distribuciones · K-S y Chi² · PP diseño T=2,5,10,25,50,100 años · Curvas IDF · 4 hietogramas CSV para ICM</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(74,222,128,.08);border-color:var(--qgis)">
+  <span class="ms-icon">🌍</span>
+  <div><strong style="color:var(--qgis)">FASE 2 — QGIS — Cuencas, DEM, CN</strong>
+  <span>Descargar DEM ALOS/SRTM · Fill Sinks · Flow Direction · Delimitación cuencas · Parámetros morfométricos · CN ponderado por subcuenca · Shapefiles para ICM · Planos DWG/PDF</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(244,114,182,.08);border-color:var(--hechms)">
+  <span class="ms-icon">🌊</span>
+  <div><strong style="color:var(--hechms)">FASE 3 — HEC-HMS — Caudales Externos (si aplica)</strong>
+  <span>Solo si hay cuencas externas que aporten al proyecto · Importar subcuencas desde QGIS · Hidrogramas de diseño · Exportar hidrogramas CSV → ICM como condición de entrada</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(248,113,113,.08);border-color:var(--icm)">
+  <span class="ms-icon">🔴</span>
+  <div><strong style="color:var(--icm)">FASE 4 — InfoWorks ICM — Configuración del Proyecto</strong>
+  <span>Nuevo grupo EPSG:32718 · DWG como fondo · 4 Rainfall Events (CSV) · Subcatchments con CN · Cotas desde MDT</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(248,113,113,.08);border-color:var(--icm)">
+  <span class="ms-icon">🔗</span>
+  <div><strong style="color:var(--icm)">FASE 5 — InfoWorks ICM — Red Hidráulica 1D</strong>
+  <span>Nodos (BZ-01..n) con cotas MDT · Conductos con Manning y secciones · Sumideros con coeficientes · Validación de red · Gradiente hidráulico favorable</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(139,92,246,.08);border-color:var(--p7)">
+  <span class="ms-icon">🟦</span>
+  <div><strong style="color:var(--p7)">FASE 6 — InfoWorks ICM — Malla 2D ★ DIFERENCIADOR</strong>
+  <span>MDT importado (LandXML/ASC) · Dominio 2D 1m² · Rugosidades Manning por zona · Muros 2D perimetrales · Acople 1D-2D automático · Condición contorno aguas abajo</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(6,182,212,.08);border-color:var(--p8)">
+  <span class="ms-icon">▶️</span>
+  <div><strong style="color:var(--p8)">FASE 7 — InfoWorks ICM — Simulación Multi-Escenario</strong>
+  <span>6 Runs: T=10,25,50,100 × SIN/CON proyecto · Preissmann 1D + TVD 2D · Δt=5s · Guardar c/60s · Iteración hasta convergencia del diseño</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(16,185,129,.08);border-color:var(--p9)">
+  <span class="ms-icon">📊</span>
+  <div><strong style="color:var(--p9)">FASE 8 — InfoWorks ICM — Resultados y Post-Proceso</strong>
+  <span>GeoTIFF mapas inundación · PNG perfiles · CSV hidrogramas · Tabla Q_pico · Video MP4 animación · Exportar todo a Excel/Word</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(251,146,60,.08);border-color:var(--hecras)">
+  <span class="ms-icon">🌊</span>
+  <div><strong style="color:var(--hecras)">FASE 9 — HEC-RAS — Socavación y Niveles de Cimentación</strong>
+  <span>Solo para estructuras de cruce con cauce natural · Secciones transversales · Steady Flow · Lischtvan-Lebediev general · HEC-18 local · Profundidad cimentación = ys + 1.0m</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(96,165,250,.08);border-color:var(--civil3d)">
+  <span class="ms-icon">📐</span>
+  <div><strong style="color:var(--civil3d)">FASE 10 — Civil 3D / AutoCAD — Diseño Final y Planos</strong>
+  <span>Dimensionamiento definitivo verificado con ICM · Diagrama de drenaje · Planos de secciones de obras · Perfil longitudinal con cotas · Coordinación con Sanitario</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(129,140,248,.08);border-color:var(--word)">
+  <span class="ms-icon">📝</span>
+  <div><strong style="color:var(--word)">FASE 11 — Word — Redacción del Informe Técnico Definitivo</strong>
+  <span>7 capítulos según Anexo 03 · Insertar figuras ICM, QGIS, HidroEsta · Tablas Excel embebidas · Referencias normativas MTC/ANA/RNE · Revisión y formato final</span></div>
+</div>
+
+<div class="fc">↓</div>
+
+<div class="ms" style="background:rgba(251,191,36,.08);border-color:var(--global)">
+  <span class="ms-icon">🏆</span>
+  <div><strong style="color:var(--global)">ENTREGA FINAL — Expediente Completo Anexo 03</strong>
+  <span>PDF informe firmado · Excel anexos · Planos DWG/PDF · GeoTIFF mapas · Video MP4 · Modelo ICM · HidroEsta2 proyecto · Fichas campo · Ficha SENAMHI</span></div>
+</div>
+</div>
+</div><!-- end t1 -->
+
+<!-- ═══ TABS 3, 4, 5, 7, 8 — RESUMIDOS ═══ -->
+<div class="tab-panel" id="t3">
+<div class="box box-obj"><strong>🌍 MANUAL QGIS — Delimitación de Cuencas y MDT</strong></div>
+
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.3)">
+    <div class="sn" style="background:rgba(74,222,128,.1);color:var(--qgis)">GIS-1</div>
+    <div class="sm">
+      <div class="st" style="color:var(--qgis)">QGIS — Descarga y Procesamiento del DEM (Click a Click)</div>
+      <div class="sd">Desde descargar el DEM hasta obtener cuencas, red hidrográfica, CN y exportar MDT para ICM</div>
+    </div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open">
+    <div class="pbi">
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--qgis)">GIS-1.1 Descargar DEM de Huánuco</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Ir a <span class="val">https://earthexplorer.usgs.gov</span> → Click en <span class="click">Login</span> (crear cuenta gratuita si no tienes). En Search Criteria: ingresar coordenadas: Latitud <span class="val">-9.95</span>, Longitud <span class="val">-76.25</span>. Date Range: cualquiera.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body">Tab <span class="menu">Data Sets</span> → expandir <span class="menu">Digital Elevation</span> → seleccionar <span class="val">SRTM 1 Arc-Second Global</span> ó <span class="val">ALOS PALSAR RTC</span> (12.5m, más preciso). Click <span class="click">Results</span>.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body">En los resultados: identificar el tile que cubre Huánuco. Click en <span class="click">Download Options</span> → seleccionar formato <span class="val">GeoTIFF</span>. Descargar. Archivo: <span class="val">N09W077.tif</span> (aprox. 25-100 MB).</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body">Alternativamente: <span class="val">https://portal.opentopography.org</span> → Global Datasets → SRTM GL1 → dibujar área de interés → Click <span class="click">Submit</span>. Descarga directa sin registro.</div></li>
+        </ul>
+      </div>
+
+      <div class="ssec">
+        <div class="ssech"><span class="ssect" style="color:var(--qgis)">GIS-1.2 Procesar DEM en QGIS — Análisis Hidrológico</span></div>
+        <ul class="steps">
+          <li class="step"><span class="step-num">1</span><div class="step-body">Abrir QGIS 3.34. <span class="click">Archivo → Abrir Proyecto → Nuevo Proyecto</span>. SCR del proyecto: <span class="val">EPSG:32718 (WGS84 UTM 18S)</span>. Drag & drop del DEM .tif al panel de capas.</div></li>
+          <li class="step"><span class="step-num">2</span><div class="step-body"><strong>Rellenar sumideros (Fill Sinks):</strong> Menú <span class="menu">Raster → Análisis → SAGA → Fill Sinks (Wang & Liu)</span>. DEM de entrada: el .tif descargado. Output: <span class="val">DEM_filled.tif</span>. Click <span class="click">Ejecutar</span>.</div></li>
+          <li class="step"><span class="step-num">3</span><div class="step-body"><strong>Dirección de flujo:</strong> <span class="menu">Raster → Análisis → SAGA → Flow Direction (D8)</span>. Input: DEM_filled. Output: <span class="val">Flow_Direction.tif</span>. Ejecutar.</div></li>
+          <li class="step"><span class="step-num">4</span><div class="step-body"><strong>Acumulación de flujo:</strong> <span class="menu">SAGA → Flow Accumulation</span>. Input: Flow_Direction. Output: <span class="val">Flow_Accumulation.tif</span>. Ejecutar. Esta capa muestra los cauces potenciales.</div></li>
+          <li class="step"><span class="step-num">5</span><div class="step-body"><strong>Extracción de red hidrográfica:</strong> <span class="menu">SAGA → Channel Network</span>. Flow Acc. mínima: <span class="val">1000</span> celdas (ajustar según cuenca). Output: <span class="val">Red_Hidro.shp</span>.</div></li>
+          <li class="step"><span class="step-num">6</span><div class="step-body"><strong>Delimitación de cuencas:</strong> Definir punto de cierre (outlet) en el área del proyecto. <span class="menu">SAGA → Watershed Basins</span>. Input: Flow Direction + punto outlet. Output: <span class="val">Cuencas.shp</span>. Editar polígono si es necesario.</div></li>
+          <li class="step"><span class="step-num">7</span><div class="step-body"><strong>Exportar MDT para ICM:</strong> Recortar DEM solo al área del estacionamiento + buffer 50m. <span class="menu">Raster → Calculadora → Extraer por máscara</span>. Luego: <span class="menu">Raster → Guardar Como → ASCII Grid (.asc)</span>. Resolución: <span class="val">0.5 m</span>. Este archivo se importa a InfoWorks ICM.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- end t3 -->
+
+<div class="tab-panel" id="t4">
+<div class="box box-obj"><strong>🌊 MANUAL HEC-HMS — Solo si hay cuencas externas mayores</strong></div>
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(244,114,182,.06);border-color:rgba(244,114,182,.3)">
+    <div class="sn" style="background:rgba(244,114,182,.1);color:var(--hechms)">HMS-1</div>
+    <div class="sm"><div class="st" style="color:var(--hechms)">HEC-HMS — Modelo Lluvia-Escorrentía para Cuencas Externas</div><div class="sd">Crear proyecto, importar cuencas, configurar pérdidas SCS, correr y exportar hidrogramas para ICM</div></div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open"><div class="pbi">
+    <div class="box box-warn"><strong>⚠️ ¿CUÁNDO USAR HEC-HMS?</strong>Solo si existe una cuenca natural (quebrada, río) que aporta escorrentía al área del estacionamiento desde fuera del predio. Si el estacionamiento solo recibe lluvia local, ICM hace el cálculo internamente y no necesitas HMS.</div>
+    <ul class="steps">
+      <li class="step"><span class="step-num">1</span><div class="step-body">Abrir HEC-HMS 4.12. <span class="click">Archivo → Nuevo Proyecto</span>. Nombre: <span class="val">HMS_Cuenca_Huanuco</span>. Unidades: <span class="val">Métricas</span>. Click <span class="click">Crear</span>.</div></li>
+      <li class="step"><span class="step-num">2</span><div class="step-body"><span class="menu">File → Add Component → Basin Model</span>. Nombre: <span class="val">Cuenca_Externa</span>. El Modelo de Cuenca se abre en vista de canvas.</div></li>
+      <li class="step"><span class="step-num">3</span><div class="step-body">En canvas: Click en herramienta <span class="click">Subbasin</span>. Click en el mapa para crear la subcuenca externa. En propiedades: Área = del QGIS (m²), Runoff Model: <span class="val">SCS Curve Number</span>, CN = del mapa QGIS.</div></li>
+      <li class="step"><span class="step-num">4</span><div class="step-body">Agregar elemento Meteorological Model: <span class="menu">Components → Meteorological Model</span>. Tipo: <span class="val">Specified Hyetograph</span>. Importar hietograma CSV creado en Excel para el T de diseño.</div></li>
+      <li class="step"><span class="step-num">5</span><div class="step-body">Crear Control Specifications: duración <span class="val">6 horas</span>, paso de tiempo <span class="val">5 minutos</span>. Luego: <span class="menu">Run → Create Run → Simulation Run</span>. Click <span class="click">Compute</span>.</div></li>
+      <li class="step"><span class="step-num">6</span><div class="step-body">Ver resultados: <span class="menu">Results → Hydrograph</span>. Exportar a CSV: <span class="menu">Results → Export → DSS to CSV</span>. El hidrograma CSV se importa a ICM como condición de entrada (boundary condition).</div></li>
+    </ul>
+  </div></div>
+</div>
+</div><!-- end t4 -->
+
+<div class="tab-panel" id="t5">
+<div class="box box-obj"><strong>🌊 MANUAL HEC-RAS 6.x — Socavación y Análisis Hidráulico de Cauces</strong></div>
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(251,146,60,.06);border-color:rgba(251,146,60,.3)">
+    <div class="sn" style="background:rgba(251,146,60,.1);color:var(--hecras)">RAS-1</div>
+    <div class="sm"><div class="st" style="color:var(--hecras)">HEC-RAS — Análisis de Socavación (Requerido Anexo 03)</div><div class="sd">Desde crear el proyecto hasta obtener la profundidad de socavación y nivel de cimentación recomendado</div></div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open"><div class="pbi">
+    <ul class="steps">
+      <li class="step"><span class="step-num">1</span><div class="step-body">Abrir HEC-RAS 6.5. <span class="menu">File → New Project</span>. Nombre: <span class="val">SOCAVACION_HUANUCO_AE03</span>. Unidades: <span class="val">Metric</span>. Guardar en carpeta del proyecto.</div></li>
+      <li class="step"><span class="step-num">2</span><div class="step-body"><span class="menu">Edit → Geometric Data</span>. Click en herramienta <span class="click">River Reach</span>. Dibujar el eje del cauce en el mapa (importar DEM como fondo: <span class="menu">View → Add WMS Layer → Google Satellite</span>).</div></li>
+      <li class="step"><span class="step-num">3</span><div class="step-body">Agregar secciones transversales: <span class="menu">Edit → Cross Sections</span>. Importar las secciones del topógrafo: <span class="menu">File → Import GIS Data → XS Cutlines from Shapefile</span>. Asignar estaciones (0, 50, 100, 150 m).</div></li>
+      <li class="step"><span class="step-num">4</span><div class="step-body">Para la sección de la estructura de cruce: ingresar cota de la solera de la alcantarilla. En cada sección: Manning n = <span class="val">0.035</span> (cauce natural con vegetación) ó <span class="val">0.025</span> (cauce rectificado).</div></li>
+      <li class="step"><span class="step-num">5</span><div class="step-body"><span class="menu">Edit → Steady Flow Data</span>. Agregar caudales de diseño: Q_T50 y Q_T100 obtenidos de ICM/HMS. Condición de contorno: <span class="val">Normal Depth</span> con pendiente del cauce.</div></li>
+      <li class="step"><span class="step-num">6</span><div class="step-body"><span class="menu">Run → Steady Flow Analysis → Mixed (Sub/Supercritical)</span>. Click <span class="click">Compute</span>. Ver resultados: velocidad media V, tirante hidráulico y, radio hidráulico R en cada sección.</div></li>
+      <li class="step"><span class="step-num">7</span><div class="step-body"><strong>Calcular socavación:</strong> Con V y características del material de fondo (d50 del EMS geotécnico): usar fórmula Lischtvan-Lebediev en Excel. ys = Hs - H donde Hs es tirante de equilibrio. Tabla resumen: estructura · Q_T100 · V · d50 · ys · Nivel_cimentación_recomendado.</div></li>
+    </ul>
+  </div></div>
+</div>
+</div><!-- end t5 -->
+
+<div class="tab-panel" id="t7">
+<div class="box box-obj"><strong>📐 MANUAL CIVIL 3D / AUTOCAD — Planos de Drenaje</strong></div>
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(96,165,250,.06);border-color:rgba(96,165,250,.3)">
+    <div class="sn" style="background:rgba(96,165,250,.1);color:var(--civil3d)">C3D-1</div>
+    <div class="sm"><div class="st" style="color:var(--civil3d)">CIVIL 3D / AUTOCAD — Planos y Secciones de Obras de Drenaje</div><div class="sd">Diagrama de drenaje, planos de secciones típicas, perfil longitudinal con cotas ICM</div></div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open"><div class="pbi">
+    <ul class="steps">
+      <li class="step"><span class="step-num">1</span><div class="step-body">Abrir Civil 3D 2021. Abrir el plano <span class="val">02_PLANO.dwg</span>. Crear nueva capa: <span class="val">DRENAJE-RED</span> (color azul), <span class="val">DRENAJE-NOTAS</span> (color blanco), <span class="val">DRENAJE-SIMBOLOS</span> (color verde).</div></li>
+      <li class="step"><span class="step-num">2</span><div class="step-body"><strong>Diagrama de drenaje:</strong> En planta, dibujar la red con polilíneas en capa DRENAJE-RED. En cada tramo: anotar diámetro, longitud, pendiente, caudal de diseño. En cada nodo: anotar cota tapa y cota fondo (de ICM). Insertar bloques de sumideros y cámaras de inspección.</div></li>
+      <li class="step"><span class="step-num">3</span><div class="step-body"><strong>Sección típica de tubería:</strong> Dibujar en hoja nueva o espacio papel. Vista transversal mostrando: excavación, cama de arena, tubería, relleno por capas, capa de rodadura. Cotas y dimensiones acotadas.</div></li>
+      <li class="step"><span class="step-num">4</span><div class="step-body"><strong>Sección típica de cuneta:</strong> Sección transversal triangular o rectangular con dimensiones de diseño. Mostrar: base, taludes, revestimiento de concreto, juntas de contracción cada 3m.</div></li>
+      <li class="step"><span class="step-num">5</span><div class="step-body"><strong>Perfil longitudinal:</strong> En Civil 3D → <span class="menu">Home → Create Surface Profile</span>. Seleccionar el eje del colector principal. El perfil muestra rasante del terreno, cota fondo tubería (de ICM) y cotas de entrada/salida de cada nodo.</div></li>
+      <li class="step"><span class="step-num">6</span><div class="step-body">Configurar cuadro de rotulación de planos: Número de plano, título, escala, fecha, revisión, firma del especialista. Exportar a PDF: <span class="menu">Publish → Publish to PDF</span>. DPI: <span class="val">300</span>.</div></li>
+    </ul>
+  </div></div>
+</div>
+</div><!-- end t7 -->
+
+<div class="tab-panel" id="t8">
+<div class="box box-obj"><strong>📝 MANUAL WORD — Redacción del Informe Técnico Definitivo</strong></div>
+<div class="sec vis">
+  <div class="sech open" onclick="tog(this)" style="background:rgba(129,140,248,.06);border-color:rgba(129,140,248,.3)">
+    <div class="sn" style="background:rgba(129,140,248,.1);color:var(--word)">W-1</div>
+    <div class="sm"><div class="st" style="color:var(--word)">WORD — Estructura Completa del Informe Técnico</div><div class="sd">Estructura, formato, inserción de figuras, tablas, y checklist de contenido mínimo Anexo 03</div></div>
+    <div class="sarr">▶</div>
+  </div>
+  <div class="pb open"><div class="pbi">
+    <div class="ssec">
+      <div class="ssech"><span class="ssect" style="color:var(--word)">Estructura de Capítulos — Informe Final</span></div>
+      <div class="tgrid">
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">📄</div><div class="tcn" style="color:var(--word)">PORTADA Y DATOS GENERALES</div></div>
+          <div class="tcb">Título: "Estudio de Hidrología, Hidráulica y Drenaje..." · Nombre del proyecto · N° Expediente 202602100006 · Consultor: Consorcio Aeroconstrucción · Fecha y versión · Firmas</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">📋</div><div class="tcn" style="color:var(--word)">ÍNDICE Y LISTA DE FIGURAS/TABLAS</div></div>
+          <div class="tcb">Índice automático en Word: <span class="menu">Referencias → Tabla de Contenido → Automática</span>. Lista de figuras con número y título. Lista de tablas.</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">1️⃣</div><div class="tcn" style="color:var(--word)">CAP. 1 — INTRODUCCIÓN</div></div>
+          <div class="tcb">Objetivos (general y específicos) · Alcance del estudio · Metodología empleada · Normativa aplicable (MTC 2011, RNE OS.060, ANA) · Período de retorno por tipo de estructura</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">2️⃣</div><div class="tcn" style="color:var(--word)">CAP. 2 — DESCRIPCIÓN ZONA DE ESTUDIO</div></div>
+          <div class="tcb">Ubicación política/geográfica con mapa · Accesibilidad · Clima (datos SENAMHI) · Geología resumida · Suelos y cobertura vegetal · Hidrología general · Sistema hidrográfico</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">3️⃣</div><div class="tcn" style="color:var(--word)">CAP. 3 — CARACTERIZACIÓN HIDROMETEOROLÓGICA</div></div>
+          <div class="tcb">Ficha SENAMHI (como figura) · Plano red de estaciones · Estadísticos básicos · Tabla 6 distribuciones con parámetros · Resultados K-S y Chi² · Distribución ganadora · PP diseño · Curvas IDF (figura) · Ecuación IDF · Hietograma</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">4️⃣</div><div class="tcn" style="color:var(--word)">CAP. 4 — ESTUDIO DE CUENCAS</div></div>
+          <div class="tcb">Plano delimitación cuencas (QGIS) · Tabla parámetros morfométricos · CN ponderado por subcuenca · Tiempo de concentración (2 métodos) · Descripción de la red hidrográfica</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">5️⃣</div><div class="tcn" style="color:var(--word)">CAP. 5 — MODELAMIENTO HIDRÁULICO (ICM)</div></div>
+          <div class="tcb">Descripción del modelo ICM · Configuración de la red 1D · Configuración malla 2D · Eventos de lluvia usados · Resultados por escenario · Mapas inundación 2D (figura) · Perfiles hidráulicos (figura) · Tabla Q_pico · Análisis SIN vs CON proyecto</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">6️⃣</div><div class="tcn" style="color:var(--word)">CAP. 6 — DISEÑO DEL SISTEMA DE DRENAJE</div></div>
+          <div class="tcb">Criterios de diseño · Tabla dimensionamiento final · Socavación y niveles cimentación · Diagrama de drenaje (figura) · Planos secciones obras (figura) · Verificación hidráulica ICM · Coordinación con Sanitario</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">7️⃣</div><div class="tcn" style="color:var(--word)">CAP. 7 — CONCLUSIONES Y RECOMENDACIONES</div></div>
+          <div class="tcb">Síntesis de precipitaciones de diseño · Caudales pico por estructura · Capacidad del sistema · Recomendaciones de O&M · Referencias bibliográficas en formato APA</div>
+        </div>
+        <div class="tc" style="border-top-color:var(--word)">
+          <div class="tch"><div class="tci" style="background:rgba(129,140,248,.15)">📎</div><div class="tcn" style="color:var(--word)">ANEXOS (numerados A, B, C...)</div></div>
+          <div class="tcb">Anexo A: Ficha SENAMHI D010/2026 sellada · Anexo B: Resultados HidroEsta 2 (todas las distribuciones) · Anexo C: Memoria de cálculo Excel · Anexo D: Fichas técnicas de campo · Anexo E: Registro fotográfico · Anexo F: Planos DWG/PDF</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ssec">
+      <div class="ssech"><span class="ssect" style="color:var(--word)">Configuración de Formato Word (Click a Click)</span></div>
+      <ul class="steps">
+        <li class="step"><span class="step-num">1</span><div class="step-body">Crear nuevo documento → <span class="menu">Diseño de Página</span>: Tamaño <span class="val">A4</span>, Orientación Vertical, Márgenes: Superior <span class="val">2.5cm</span>, Inferior <span class="val">2.5cm</span>, Izquierdo <span class="val">3.0cm</span>, Derecho <span class="val">2.5cm</span>.</div></li>
+        <li class="step"><span class="step-num">2</span><div class="step-body">Definir estilos: Título 1 → Arial 14pt Negrita, Título 2 → Arial 12pt Negrita, Normal → Arial 11pt, interlineado 1.15. Click en <span class="menu">Inicio → Estilos → Modificar</span>.</div></li>
+        <li class="step"><span class="step-num">3</span><div class="step-body">Configurar numeración de páginas: <span class="menu">Insertar → Número de Página → Pie de Página → Centro</span>. Formato: arábigos desde la página 1.</div></li>
+        <li class="step"><span class="step-num">4</span><div class="step-body">Para insertar figuras ICM: copiar la imagen PNG → <span class="menu">Pegar</span>. Click en la imagen → <span class="menu">Formato de Imagen → Ajuste de Texto → Arriba y Abajo</span>. Añadir descripción: "Figura X: Mapa de inundación para T=25 años — InfoWorks ICM 2026".</div></li>
+        <li class="step"><span class="step-num">5</span><div class="step-body">Para insertar tablas de Excel: en Excel, seleccionar tabla → Copiar. En Word: <span class="menu">Pegar Especial → Objeto de Hoja de Cálculo de Microsoft Excel</span>. Esto permite actualizar la tabla haciendo doble click.</div></li>
+      </ul>
+    </div>
+  </div></div>
+</div>
+</div><!-- end t8 -->
+
+<!-- ═══ TAB 9 — CHECKLIST FINAL ═══ -->
+<div class="tab-panel" id="t9">
+<div class="box box-obj"><strong>✅ CHECKLIST DE VERIFICACIÓN — CONTENIDO MÍNIMO OBLIGATORIO ANEXO 03</strong>Marca cada ítem al completarlo. Estado se guarda en sesión.</div>
+
+<div class="ck-list" id="cklist">
+  <!-- Hidrometeorología -->
+  <div style="padding:8px 0 4px;font-family:\'JetBrains Mono\',monospace;font-size:.7rem;color:var(--senamhi);text-transform:uppercase;letter-spacing:.1em">📋 A. CARACTERIZACIÓN HIDROMETEOROLÓGICA</div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.1</span><span class="ck-text">Ficha SENAMHI con sello oficial (PP Máx 24h, 30+ años, con años El Niño)</span><span class="ck-sw" style="background:rgba(14,165,233,.2);color:var(--senamhi)">SENAMHI ✓</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.2</span><span class="ck-text">Serie anual de máximos tabulada con análisis de datos faltantes S/D</span><span class="ck-sw" style="background:rgba(52,211,153,.2);color:var(--excel)">EXCEL ✓</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.3</span><span class="ck-text">Estadísticos básicos: media, desv. est., Cv, Cs, Ck</span><span class="ck-sw" style="background:rgba(52,211,153,.2);color:var(--excel)">EXCEL</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.4</span><span class="ck-text">Ajuste de distribución Normal</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.5</span><span class="ck-text">Ajuste de distribución Log-Normal 2 parámetros</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.6</span><span class="ck-text">Ajuste de distribución Log-Normal 3 parámetros</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.7</span><span class="ck-text">Ajuste de distribución Gumbel (EV Tipo I Máximos)</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.8</span><span class="ck-text">Ajuste de distribución Log-Pearson Tipo III</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.9</span><span class="ck-text">Ajuste de distribución GEV (opcional pero recomendado)</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.10</span><span class="ck-text">Prueba de bondad Kolmogorov-Smirnov (todas las distribuciones)</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.11</span><span class="ck-text">Prueba de bondad Chi-Cuadrado (todas las distribuciones)</span><span class="ck-sw" style="background:rgba(167,139,250,.2);color:var(--hidroesta)">HidroEsta2</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.12</span><span class="ck-text">PP diseño para T=2,5,10,25,50,100,200,500 años (tabla)</span><span class="ck-sw" style="background:rgba(52,211,153,.2);color:var(--excel)">EXCEL</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.13</span><span class="ck-text">Curvas IDF graficadas con ecuación I=f(T,D)</span><span class="ck-sw" style="background:rgba(52,211,153,.2);color:var(--excel)">EXCEL</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.14</span><span class="ck-text">Plano de ubicación y red de estaciones meteorológicas</span><span class="ck-sw" style="background:rgba(74,222,128,.2);color:var(--qgis)">QGIS</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">A.15</span><span class="ck-text">Período de retorno seleccionado por tipo de estructura (tabla)</span><span class="ck-sw" style="background:rgba(129,140,248,.2);color:var(--word)">WORD</span></div>
+
+  <div style="padding:8px 0 4px;font-family:\'JetBrains Mono\',monospace;font-size:.7rem;color:var(--qgis);text-transform:uppercase;letter-spacing:.1em">🗺️ B. CUENCAS HIDROGRÁFICAS</div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">B.1</span><span class="ck-text">Estudio de cuencas hidrográficas con delimitación</span><span class="ck-sw" style="background:rgba(74,222,128,.2);color:var(--qgis)">QGIS</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">B.2</span><span class="ck-text">Parámetros morfométricos: A, P, L, S, Tc, CN</span><span class="ck-sw" style="background:rgba(52,211,153,.2);color:var(--excel)">EXCEL</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">B.3</span><span class="ck-text">Plano clave y delimitación de cuencas (DWG/PDF)</span><span class="ck-sw" style="background:rgba(74,222,128,.2);color:var(--qgis)">QGIS+AutoCAD</span></div>
+
+  <div style="padding:8px 0 4px;font-family:\'JetBrains Mono\',monospace;font-size:.7rem;color:var(--icm);text-transform:uppercase;letter-spacing:.1em">🔴 C. MODELAMIENTO HIDRÁULICO (InfoWorks ICM)</div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">C.1</span><span class="ck-text">Estimación de caudales mediante modelo hidrológico computarizado</span><span class="ck-sw" style="background:rgba(248,113,113,.2);color:var(--icm)">ICM</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">C.2</span><span class="ck-text">Estimación profundidad de socavación y niveles de cimentación</span><span class="ck-sw" style="background:rgba(251,146,60,.2);color:var(--hecras)">HEC-RAS</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">C.3</span><span class="ck-text">Estudio de drenaje pluvial completo</span><span class="ck-sw" style="background:rgba(248,113,113,.2);color:var(--icm)">ICM</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">C.4</span><span class="ck-text">Cálculo hidráulico y diseño de drenaje pluvial (coordinado con Sanitario)</span><span class="ck-sw" style="background:rgba(96,165,250,.2);color:var(--civil3d)">Civil 3D</span></div>
+
+  <div style="padding:8px 0 4px;font-family:\'JetBrains Mono\',monospace;font-size:.7rem;color:var(--civil3d);text-transform:uppercase;letter-spacing:.1em">📐 D. PLANOS Y DOCUMENTOS</div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">D.1</span><span class="ck-text">Diagrama de drenaje (DWG + PDF)</span><span class="ck-sw" style="background:rgba(96,165,250,.2);color:var(--civil3d)">AutoCAD</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">D.2</span><span class="ck-text">Planos de secciones de obras de drenaje (DWG + PDF)</span><span class="ck-sw" style="background:rgba(96,165,250,.2);color:var(--civil3d)">AutoCAD</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">D.3</span><span class="ck-text">Inventario de obras de drenaje existente (Fichas técnicas de campo)</span><span class="ck-sw" style="background:rgba(52,211,153,.2);color:var(--excel)">Campo+Excel</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">D.4</span><span class="ck-text">Anexos de cálculos (Excel con memorias de cálculo)</span><span class="ck-sw" style="background:rgba(52,211,153,.2);color:var(--excel)">EXCEL</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">D.5</span><span class="ck-text">Mapas de inundación 2D por período de retorno (ICM → GeoTIFF)</span><span class="ck-sw" style="background:rgba(248,113,113,.2);color:var(--icm)">ICM ★</span></div>
+  <div class="ck-item"><div class="ck-box" onclick="chk(this)"></div><span class="ck-num">D.6</span><span class="ck-text">Informe final firmado y sellado por especialista habilitado</span><span class="ck-sw" style="background:rgba(129,140,248,.2);color:var(--word)">WORD→PDF</span></div>
+</div>
+
+<div id="ck-progress" style="margin-top:16px;padding:14px 16px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:.78rem;color:var(--t2)">
+  Progreso: <span id="ck-count">0</span> / <span id="ck-total">0</span> completados &nbsp;|&nbsp; <span id="ck-pct" style="color:var(--global)">0%</span>
+  <div style="margin-top:8px;height:6px;background:var(--b1);border-radius:3px;overflow:hidden">
+    <div id="ck-bar" style="height:100%;background:linear-gradient(90deg,var(--p9),var(--global));border-radius:3px;width:0%;transition:width .3s"></div>
+  </div>
+</div>
+</div><!-- end t9 -->
+
+<!-- ═══ JAVASCRIPT ═══ -->
+<script>
+// Tab switching
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top: 200, behavior:'smooth'});
+}
+
+// Toggle phase bodies
+function tog(headerEl) {
+  const body = headerEl.nextElementSibling;
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  headerEl.classList.toggle('open', !open);
+}
+
+// Progress bar
+const pgbar = document.getElementById('pgbar');
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const total = document.body.scrollHeight - window.innerHeight;
+  if (total > 0) pgbar.style.width = (scrolled / total * 100) + '%';
+}, {passive:true});
+
+// Intersection observer
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, {threshold: 0.05, rootMargin: '0px 0px -40px 0px'});
+document.querySelectorAll('.sec').forEach(s => obs.observe(s));
+
+// Build sidebar nav
+const sidebar = document.getElementById('sidenav');
+const colors = ['#0ea5e9','#34d399','#a78bfa','#4ade80','#f472b6','#f87171','#8b5cf6','#60a5fa','#818cf8','#fbbf24'];
+const names = ['Pre-Req','Mapa Global','Excel/Hidroesta','QGIS','HEC-HMS','HEC-RAS','ICM Manual','Civil 3D','Word','Checklist'];
+const tabs = ['t0','t1','t2','t3','t4','t5','t6','t7','t8','t9'];
+tabs.forEach((t, i) => {
+  const d = document.createElement('div');
+  d.className = 'snd';
+  d.style.background = colors[i];
+  d.innerHTML = `<div class="snt">${names[i]}</div>`;
+  d.onclick = () => {
+    const btn = document.querySelectorAll('.tab-btn')[i];
+    showTab(t, btn);
+    document.querySelectorAll('.snd').forEach(x => x.classList.remove('active'));
+    d.classList.add('active');
+  };
+  sidebar.appendChild(d);
+});
+
+// Checklist
+function chk(box) {
+  box.classList.toggle('checked');
+  updateProgress();
+}
+function updateProgress() {
+  const all = document.querySelectorAll('.ck-box');
+  const done = document.querySelectorAll('.ck-box.checked');
+  const total = all.length;
+  const count = done.length;
+  const pct = total > 0 ? Math.round(count/total*100) : 0;
+  document.getElementById('ck-count').textContent = count;
+  document.getElementById('ck-total').textContent = total;
+  document.getElementById('ck-pct').textContent = pct + '%';
+  document.getElementById('ck-bar').style.width = pct + '%';
+}
+document.addEventListener('DOMContentLoaded', updateProgress);
+setTimeout(updateProgress, 200);
+</script>
+</body>
+</html>
